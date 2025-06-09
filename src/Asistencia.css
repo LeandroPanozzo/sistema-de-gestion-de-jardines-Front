@@ -1,0 +1,974 @@
+/* Asistencia.css - Sistema de Gestión Escolar */
+
+/* Variables CSS para colores morados y tema moderno */
+:root {
+  --primary-purple: #8b5cf6;
+  --primary-purple-dark: #7c3aed;
+  --primary-purple-light: #a78bfa;
+  --purple-50: #faf5ff;
+  --purple-100: #f3e8ff;
+  --purple-200: #e9d5ff;
+  --purple-300: #d8b4fe;
+  --purple-600: #9333ea;
+  --purple-700: #7c2d92;
+  --purple-800: #6b21a8;
+  
+  --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  --shadow-soft: 0 10px 25px -3px rgba(139, 92, 246, 0.1), 0 4px 6px -2px rgba(139, 92, 246, 0.05);
+  --shadow-hover: 0 20px 40px -4px rgba(139, 92, 246, 0.2), 0 8px 16px -4px rgba(139, 92, 246, 0.1);
+  --border-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Colores adicionales para asistencia */
+  --color-presente: #10b981;
+  --color-presente-light: #d1fae5;
+  --color-ausente: #ef4444;
+  --color-ausente-light: #fee2e2;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-retirado: #6366f1;
+  --color-retirado-light: #e0e7ff;
+}
+
+/* Contenedor principal */
+.asistencia-container {
+  min-height: 100vh;
+  background: var(--gradient-bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 2rem 1rem;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid var(--purple-200);
+  border-top: 4px solid var(--primary-purple);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header de Asistencia */
+.asistencia-header {
+  background: var(--gradient-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.asistencia-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-purple), var(--primary-purple-light));
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.asistencia-header-content {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.asistencia-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.asistencia-back-button {
+  background: linear-gradient(135deg, var(--purple-100), var(--purple-200));
+  border: 2px solid var(--purple-300);
+  border-radius: 12px;
+  padding: 0.75rem;
+  color: var(--purple-800);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asistencia-back-button:hover {
+  background: linear-gradient(135deg, var(--purple-200), var(--purple-300));
+  transform: translateY(-2px);
+}
+
+.asistencia-back-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.asistencia-icon {
+  background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-light));
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.asistencia-icon::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-light));
+  border-radius: 16px;
+  z-index: -1;
+  opacity: 0.2;
+}
+
+.asistencia-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+
+.asistencia-title-text h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(135deg, #1f2937, var(--primary-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.asistencia-title-text p {
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+.asistencia-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.asistencia-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.asistencia-date svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.asistencia-historial-button {
+  background: linear-gradient(135deg, var(--color-presente), #059669);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.asistencia-historial-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.asistencia-historial-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Tabs de navegación */
+.asistencia-tabs {
+  display: flex;
+  border-top: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.asistencia-tab {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.asistencia-tab.active {
+  color: var(--primary-purple);
+  background: linear-gradient(135deg, var(--purple-50), var(--purple-100));
+}
+
+.asistencia-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-purple), var(--primary-purple-light));
+}
+
+.asistencia-tab:hover:not(.active) {
+  background: rgba(139, 92, 246, 0.05);
+  color: var(--primary-purple-dark);
+}
+
+.asistencia-tab svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Mensaje de error */
+.asistencia-error {
+  background: linear-gradient(135deg, var(--color-ausente-light), #fecaca);
+  border: 2px solid var(--color-ausente);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #991b1b;
+}
+
+.asistencia-error svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Tarjetas de curso */
+.curso-card {
+  background: var(--gradient-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.curso-card:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.curso-header {
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.curso-header:hover {
+  background: rgba(139, 92, 246, 0.02);
+}
+
+.curso-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.curso-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.curso-chevron {
+  color: var(--primary-purple);
+  transition: var(--transition);
+}
+
+.curso-chevron svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.curso-details h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.curso-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.curso-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.curso-meta-item.turno {
+  background: linear-gradient(135deg, var(--purple-100), var(--purple-200));
+  color: var(--purple-800);
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.curso-meta-item.presentes {
+  background: linear-gradient(135deg, var(--color-presente-light), #a7f3d0);
+  color: #065f46;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.curso-meta-item svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.curso-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.curso-status.en-horario {
+  background: linear-gradient(135deg, var(--color-presente-light), #a7f3d0);
+  color: #065f46;
+}
+
+.curso-status.fuera-horario {
+  background: linear-gradient(135deg, var(--color-warning-light), #fde68a);
+  color: #92400e;
+}
+
+.curso-status svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Contenido del curso */
+.curso-content {
+  padding: 1.5rem;
+}
+
+.curso-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.curso-content-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.save-button {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  border: none;
+}
+
+.save-button.enabled {
+  background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-dark));
+  color: white;
+}
+
+.save-button.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.3);
+}
+
+.save-button.disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.save-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Estados vacíos */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-state-card {
+  background: linear-gradient(135deg, var(--purple-50), var(--purple-100));
+  border: 2px dashed var(--purple-300);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  color: var(--purple-700);
+}
+
+.empty-state-card p {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.empty-state-card .text-sm {
+  font-size: 0.875rem;
+  color: var(--purple-600);
+  margin: 0;
+}
+
+.no-courses-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--gradient-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.no-courses-icon {
+  background: linear-gradient(135deg, var(--purple-100), var(--purple-200));
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  border: 3px solid var(--purple-300);
+}
+
+.no-courses-icon svg {
+  width: 2rem;
+  height: 2rem;
+  color: var(--purple-700);
+}
+
+.no-courses-state h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.no-courses-state p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Tarjetas de alumnos */
+.alumno-card {
+  background: var(--gradient-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.alumno-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transition: var(--transition);
+}
+
+.alumno-card.presente {
+  border-color: var(--color-presente);
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.alumno-card.presente::before {
+  background: linear-gradient(90deg, var(--color-presente), #059669);
+}
+
+.alumno-card.ausente {
+  border-color: var(--color-ausente);
+  background: linear-gradient(145deg, #ffffff 0%, #fef2f2 100%);
+}
+
+.alumno-card.ausente::before {
+  background: linear-gradient(90deg, var(--color-ausente), #dc2626);
+}
+
+.alumno-card.sin-registro {
+  border-color: var(--color-warning);
+  background: linear-gradient(145deg, #ffffff 0%, #fffbeb 100%);
+}
+
+.alumno-card.sin-registro::before {
+  background: linear-gradient(90deg, var(--color-warning), #d97706);
+}
+
+.alumno-card.retirado {
+  border-color: var(--color-retirado);
+  background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%);
+}
+
+.alumno-card.retirado::before {
+  background: linear-gradient(90deg, var(--color-retirado), #4f46e5);
+}
+
+.alumno-card.disponible {
+  border-color: var(--purple-300);
+  background: linear-gradient(145deg, #ffffff 0%, var(--purple-50) 100%);
+}
+
+.alumno-card.disponible::before {
+  background: linear-gradient(90deg, var(--primary-purple), var(--primary-purple-light));
+}
+
+.alumno-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.alumno-status-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alumno-status-icon.presente {
+  background: linear-gradient(135deg, var(--color-presente-light), #a7f3d0);
+  color: var(--color-presente);
+}
+
+.alumno-status-icon.ausente {
+  background: linear-gradient(135deg, var(--color-ausente-light), #fecaca);
+  color: var(--color-ausente);
+}
+
+.alumno-status-icon.sin-registro {
+  background: linear-gradient(135deg, var(--color-warning-light), #fde68a);
+  color: var(--color-warning);
+}
+
+.alumno-status-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.alumno-details {
+  flex: 1;
+}
+
+.alumno-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.alumno-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.alumno-meta-separator {
+  color: #d1d5db;
+}
+
+/* Botones de alumnos */
+.alumno-buttons-container {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.alumno-button {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid transparent;
+  flex: 1;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.alumno-button.marcar-presente {
+  background: linear-gradient(135deg, var(--color-presente-light), #a7f3d0);
+  color: var(--color-presente);
+}
+
+.alumno-button.marcar-presente:hover:not(.disabled) {
+  background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+  transform: translateY(-2px);
+}
+
+.alumno-button.marcar-presente.active {
+  background: linear-gradient(135deg, var(--color-presente), #059669);
+  color: white;
+  border-color: var(--color-presente);
+}
+
+.alumno-button.marcar-ausente {
+  background: linear-gradient(135deg, var(--color-ausente-light), #fecaca);
+  color: var(--color-ausente);
+}
+
+.alumno-button.marcar-ausente:hover:not(.disabled) {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  transform: translateY(-2px);
+}
+
+.alumno-button.marcar-ausente.active {
+  background: linear-gradient(135deg, var(--color-ausente), #dc2626);
+  color: white;
+  border-color: var(--color-ausente);
+}
+
+.alumno-button.retiro-seguro {
+  background: linear-gradient(135deg, var(--color-retirado-light), #c7d2fe);
+  color: var(--color-retirado);
+}
+
+.alumno-button.retiro-seguro:hover:not(.disabled) {
+  background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+  transform: translateY(-2px);
+}
+
+.alumno-button.disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.alumno-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Acciones de alumnos */
+.alumno-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Badge de retiro */
+.retiro-badge {
+  background: linear-gradient(135deg, var(--color-retirado), #4f46e5);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Modal de retiro seguro */
+.retiro-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.retiro-modal {
+  background: var(--gradient-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-hover);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.retiro-modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.retiro-modal-header svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-retirado);
+}
+
+.retiro-modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.retiro-modal-alumno {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.retiro-modal-alumno p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.retiro-modal-alumno-info .font-medium {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.retiro-modal-alumno-info .text-sm {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.retiro-modal-select-container {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.retiro-modal-select-container label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.retiro-modal-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  transition: var(--transition);
+}
+
+.retiro-modal-select:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.retiro-modal-actions {
+  padding: 1rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.retiro-modal-button {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  font-size: 0.875rem;
+}
+
+.retiro-modal-button.cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.retiro-modal-button.cancel:hover {
+  background: #e5e7eb;
+}
+
+.retiro-modal-button.confirm {
+  background: linear-gradient(135deg, var(--color-retirado), #4f46e5);
+  color: white;
+}
+
+.retiro-modal-button.confirm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+}
+
+.retiro-modal-button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.retiro-modal-info {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-retirado-light), #c7d2fe);
+  color: var(--color-retirado);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.retiro-modal-info strong {
+  font-weight: 700;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .asistencia-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .asistencia-header-content {
+    padding: 1.5rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .asistencia-title-section {
+    width: 100%;
+  }
+  
+  .asistencia-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .asistencia-title-text h1 {
+    font-size: 1.5rem;
+  }
+  
+  .curso-header {
+    padding: 1rem;
+  }
+  
+  .curso-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .curso-info {
+    width: 100%;
+  }
+  
+  .curso-meta {
+    gap: 0.5rem;
+  }
+  
+  .curso-content {
+    padding: 1rem;
+  }
+  
+  .curso-content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .alumno-card {
+    padding: 1rem;
+  }
+  
+  .alumno-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .alumno-buttons-container {
+    width: 100%;
+  }
+  
+  .alumno-button {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .asistencia-tabs {
+    flex-direction: column;
+  }
+  
+  .asistencia-tab {
+    padding: 0.75rem 1rem;
+  }
+}

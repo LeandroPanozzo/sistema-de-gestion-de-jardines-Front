@@ -1,0 +1,541 @@
+
+/* MiAsistencia.css */
+
+.mi-asistencia-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Header */
+.mi-asistencia-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 0;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #64748b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background-color: #475569;
+  transform: translateY(-1px);
+}
+
+.mi-asistencia-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Loading */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  color: #64748b;
+}
+
+.loading-spinner p {
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Estado del sistema */
+.sistema-estado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.sistema-estado.habilitado {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.sistema-estado.deshabilitado {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.estado-icon {
+  display: flex;
+  align-items: center;
+}
+
+/* Fecha actual */
+.fecha-actual {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Error message */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.error-message button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Secciones */
+.cursos-section,
+.registro-section {
+  background-color: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.cursos-section h2,
+.registro-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+/* No cursos */
+.no-cursos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: #64748b;
+  text-align: center;
+}
+
+.no-cursos p {
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+/* Grid de cursos */
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.curso-card {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.curso-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.curso-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+}
+
+.curso-detalles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.curso-detalles span {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.turno {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.horario {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.edad {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* Horarios permitidos */
+.horarios-permitidos {
+  background-color: #f1f5f9;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.horarios-permitidos p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #475569;
+}
+
+/* Disponibilidad */
+.disponibilidad {
+  display: flex;
+  gap: 20px;
+}
+
+.disponibilidad-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.disponibilidad-item.disponible {
+  color: #15803d;
+}
+
+.disponibilidad-item.no-disponible {
+  color: #dc2626;
+}
+
+/* Registro actual */
+.registro-actual {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.registro-info {
+  display: grid;
+  gap: 16px;
+}
+
+.registro-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.registro-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.valor {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.valor.registrado {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.valor.pendiente {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* Sin registro */
+.sin-registro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  color: #64748b;
+  text-align: center;
+}
+
+.sin-registro p {
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+/* Botones de registro */
+.botones-registro {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-registro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.btn-registro:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-registro.ingreso {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-registro.ingreso:hover:not(:disabled) {
+  background-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-registro.salida {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-registro.salida:hover:not(:disabled) {
+  background-color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-registro.procesando {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+/* Registro por curso */
+.registro-curso {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.registro-curso h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Botones de registro para cada curso */
+.botones-registro-curso {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.botones-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.botones-grupo h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  padding: 8px 0 4px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.botones-grupo.registro-directo {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.botones-grupo.aviso-directivo {
+  background-color: #fffbeb;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #fed7aa;
+}
+
+/* Botones de aviso al directivo */
+.btn-aviso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.btn-aviso:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-aviso.aviso-ingreso {
+  background-color: #f59e0b;
+  color: white;
+  border: 1px solid #d97706;
+}
+
+.btn-aviso.aviso-ingreso:hover:not(:disabled) {
+  background-color: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+}
+
+.btn-aviso.aviso-salida {
+  background-color: #f97316;
+  color: white;
+  border: 1px solid #ea580c;
+}
+
+.btn-aviso.aviso-salida:hover:not(:disabled) {
+  background-color: #ea580c;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(249, 115, 22, 0.3);
+}
+
+.btn-aviso.procesando {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mi-asistencia-container {
+    padding: 16px;
+  }
+  
+  .mi-asistencia-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .mi-asistencia-header h1 {
+    font-size: 24px;
+  }
+  
+  .cursos-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .botones-registro {
+    flex-direction: column;
+  }
+  
+  .btn-registro {
+    width: 100%;
+  }
+
+  .botones-registro-curso {
+    gap: 16px;
+  }
+
+  .botones-grupo {
+    gap: 8px;
+  }
+
+  .btn-aviso {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .disponibilidad {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .registro-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

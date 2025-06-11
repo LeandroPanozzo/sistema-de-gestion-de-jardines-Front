@@ -192,9 +192,6 @@ const Asistencia: React.FC<AsistenciaProps> = ({ user, onBack, onNavigateToHisto
     return asistencia?.presente || false;
   };
 
-  const isAlumnoRetirado = (cursoId: number, alumnoId: number) => {
-    return (retirosData[cursoId] || []).some(r => r.alumno_id === alumnoId);
-  };
 
   // Función corregida para obtener alumnos según la pestaña
   const getAlumnosByTab = (cursoId: number) => {

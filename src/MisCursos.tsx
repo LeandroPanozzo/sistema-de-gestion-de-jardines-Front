@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Edit2, Trash2, Users, Clock, Calendar, AlertCircle, Save, X, ArrowLeft, UserPlus, DollarSign } from 'lucide-react';
+import { Plus, Calendar, AlertCircle, Save, X, ArrowLeft, DollarSign } from 'lucide-react';
 import { cursoAPI, cicloLectivoAPI, userAPI, handleAPIError, UserData } from './config/api';
 import './miscursos.css';
 
@@ -18,8 +18,24 @@ interface FormData {
 }
 interface MisCursosProps { user: UserData; onNavigateBack: () => void | Promise<void>; }
 
+// Tipos para componentes
+interface StatusMessageProps {
+  message: string;
+  type: 'error' | 'success';
+  onClose: () => void;
+}
+
+interface CursoCardProps {
+  curso: Curso;
+  onEdit: (curso: Curso) => void;
+  onDelete: (curso: Curso) => Promise<void>;
+  onOpenMaestras: (curso: Curso) => void;
+  submitting: boolean;
+  isDirectivo: boolean;
+}
+
 // Componente de mensaje de estado - Movido fuera para evitar re-creación
-const StatusMessage = ({ message, type, onClose }: { message: string; type: 'error' | 'success'; onClose: () => void }) => (
+const StatusMessage: React.FC<StatusMessageProps> = ({ message, type, onClose }) => (
   <div className={`status-message ${type}`}>
     {type === 'error' && <AlertCircle className="h-4 w-4" />}
     {message}
@@ -30,7 +46,7 @@ const StatusMessage = ({ message, type, onClose }: { message: string; type: 'err
 );
 
 // Componente de tarjeta de curso con iconos Unicode (más compatibles)
-const CursoCard = React.memo(({ curso, onEdit, onDelete, onOpenMaestras, submitting, isDirectivo }) => (
+const CursoCard: React.FC<CursoCardProps> = React.memo(({ curso, onEdit, onDelete, onOpenMaestras, submitting, isDirectivo }) => (
   <div className="curso-card">
     <div className="curso-card-content">
       <div className="curso-card-header">
@@ -93,7 +109,7 @@ const CursoCard = React.memo(({ curso, onEdit, onDelete, onOpenMaestras, submitt
           <div className="maestros-label">Maestras:</div>
           {curso.maestros_nombres.length > 0 ? (
             <div className="maestros-list">
-              {curso.maestros_nombres.map((nombre, index) => (
+              {curso.maestros_nombres.map((nombre: string, index: number) => (
                 <span key={index} className="maestro-badge">{nombre}</span>
               ))}
             </div>
@@ -237,7 +253,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
       
       if (ciclosResponse.data.length === 0) return;
       
-      const [cursosData, maestrosResponse] = await Promise.all([loadCursos(), userAPI.getAll()]);
+      const [, maestrosResponse] = await Promise.all([loadCursos(), userAPI.getAll()]);
       setMaestros(maestrosResponse.data.filter((u: any) => u.es_maestro || (u.es_maestro && u.es_directivo)));
       
     } catch (err: any) {

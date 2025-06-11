@@ -17,8 +17,8 @@ import PagosComponent from './Pagos';
 import EstadisticasPagos from './EstadisticasPagos';
 import Estadisticas from './estadisticas';
 import Chatbot from './chatbotIA';
-import HistorialAsistencias from './HistorialAsistencias'; // Make sure the file name matches exactly
-import { getAuthToken, clearAuthToken, authAPI, handleAPIError, UserData } from './config/api';
+import HistorialAsistencias from './historialAsistencias'; // Make sure the file name matches exactly
+import { getAuthToken, clearAuthToken, authAPI, UserData } from './config/api';
 
 // Componente para hacer scroll al inicio en cada cambio de ruta
 const ScrollToTop = () => {

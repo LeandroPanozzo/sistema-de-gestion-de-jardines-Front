@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, AlertCircle, CheckCircle, Key, User } from 'lucide-react';
-import { passwordResetAPI, handleAPIError } from './config/api';
+import {  handleAPIError } from './config/api';
 import './forgotpassword.css'; // Importamos el CSS
 
 interface ForgotPasswordProps {
@@ -32,11 +32,8 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
     setError('');
 
     try {
-      let response;
       if (recoveryType === 'password') {
-        response = await passwordResetAPI.forgotPassword(email);
       } else {
-        response = await passwordResetAPI.forgotUsername(email);
       }
 
       setSuccess(true);

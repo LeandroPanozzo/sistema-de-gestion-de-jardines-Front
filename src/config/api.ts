@@ -246,19 +246,7 @@ export const asistenciaAPI = {
     });
   },
 };
-const avisoDirectivoAPI = {
-  pendientes: () => api.get('/avisos-directivo/pendientes/'),
-  // La función procesar ya no necesita el parámetro data con hora
-  procesar: (id: number) => api.post(`/avisos-directivo/${id}/procesar/`, {}),
-};
-interface AvisoDirectivo {
-  id: number;
-  tipo: 'ingreso' | 'salida';
-  maestro_nombre: string;
-  curso_nombre: string;
-  fecha: string;
-  hora_solicitada: string; // Nuevo campo que viene del backend
-}
+
 // También mejora la función de manejo de errores para ser más específica:
 export const handleAPIError = (error: AxiosError): APIError => {
   console.log('Handling API error:', error);
@@ -275,7 +263,6 @@ export const handleAPIError = (error: AxiosError): APIError => {
       case 400:
         // Mejorar el manejo de errores de validación
         let validationMessage = 'Datos inválidos';
-        let errors = data;
         
         // Si el error tiene una estructura específica de Django REST Framework
         if (typeof data === 'object' && !Array.isArray(data)) {
@@ -286,7 +273,7 @@ export const handleAPIError = (error: AxiosError): APIError => {
           } else {
             // Formatear errores de campo
             const fieldErrors = Object.entries(data)
-              .filter(([key, value]) => Array.isArray(value) || typeof value === 'string')
+              .filter(([, value]) => Array.isArray(value) || typeof value === 'string')
               .map(([field, messages]) => {
                 if (Array.isArray(messages)) {
                   return `${field}: ${messages.join(', ')}`;
@@ -399,22 +386,22 @@ export const cicloLectivoAPI = {
 };
 export const passwordResetAPI = {
   // Solicitar recuperación de contraseña
-  forgotPassword: (email) => {
+  forgotPassword: (email: any) => {
     return api.post('/auth/forgot-password/', { email });
   },
 
   // Solicitar recordatorio de usuario
-  forgotUsername: (email) => {
+  forgotUsername: (email: any) => {
     return api.post('/auth/forgot-username/', { email });
   },
 
   // Verificar token de recuperación
-  verifyResetToken: (token) => {
+  verifyResetToken: (token: any) => {
     return api.post('/auth/verify-reset-token/', { token });
   },
 
   // Cambiar contraseña con token
-  resetPassword: (token, newPassword, confirmPassword) => {
+  resetPassword: (token: any, newPassword: any, confirmPassword: any) => {
     return api.post('/auth/reset-password/', {
       token,
       new_password: newPassword,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, School, Settings, Users, BookOpen, Calendar, Clock, ClipboardList, BarChart3, GraduationCap, UserCheck } from 'lucide-react';
+import { User,  Settings, Users, BookOpen, Calendar, Clock, ClipboardList, BarChart3, GraduationCap, UserCheck } from 'lucide-react';
 import './Home.css';
 
 interface UserData {
@@ -18,7 +18,7 @@ interface HomeProps {
   onLogout?: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ user, onLogout }) => {
+const Home: React.FC<HomeProps> = ({ user }) => {
   const navigate = useNavigate();
 
   // Determinar el saludo basado en el rol

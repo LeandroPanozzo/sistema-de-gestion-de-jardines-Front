@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Calendar, ArrowLeft, Users, Clock, CheckCircle, XCircle, 
-  UserCheck, UserX, Search, AlertCircle, History, Filter,
-  Download, Eye
+  UserCheck, UserX, AlertCircle, History,
+   Eye
 } from 'lucide-react';
 import { cursoAPI, asistenciaAlumnoAPI, retiroAPI, handleAPIError } from './config/api';
 import type { UserData } from './config/api';
@@ -62,11 +62,11 @@ interface HistorialProps {
 
 const HistorialAsistenciaAlumnos: React.FC<HistorialProps> = ({ user, onBack }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [cursos, setCursos] = useState<Curso[]>([]);
+  const [, setCursos] = useState<Curso[]>([]);
   const [todosLosCursos, setTodosLosCursos] = useState<Curso[]>([]); // NUEVO: Lista completa de cursos
   const [asistencias, setAsistencias] = useState<RegistroAsistencia[]>([]);
   const [retiros, setRetiros] = useState<RegistroRetiro[]>([]);
-  const [datosAlumnos, setDatosAlumnos] = useState<{[key: number]: DatosAlumno}>({});
+  const [] = useState<{[key: number]: DatosAlumno}>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'asistencia' | 'retiro' | 'resumen'>('resumen');
@@ -96,8 +96,8 @@ const HistorialAsistenciaAlumnos: React.FC<HistorialProps> = ({ user, onBack }) 
         // Si no es directivo, usar solo sus cursos
         setTodosLosCursos(misCursosResponse.data);
       }
-    } catch (err: any) {
-      const apiError = handleAPIError(err);
+    } catch (err) {
+      const apiError = handleAPIError(err as any);
       setError(`Error al cargar cursos: ${apiError.message}`);
     }
   };
@@ -121,7 +121,7 @@ const HistorialAsistenciaAlumnos: React.FC<HistorialProps> = ({ user, onBack }) 
       setRetiros(retirosResponse.data);
 
     } catch (err) {
-      const apiError = handleAPIError(err);
+      const apiError = handleAPIError(err as any);
       setError(`Error al cargar historial: ${apiError.message}`);
     } finally {
       setLoading(false);

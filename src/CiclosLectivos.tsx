@@ -26,7 +26,7 @@ interface CiclosLectivosProps {
 
 }
 
-const CiclosLectivos: React.FC<CiclosLectivosProps> = ({ user}) => {
+const CiclosLectivos: React.FC<CiclosLectivosProps> = ({}) => {
   const navigate = useNavigate();
   const [ciclos, setCiclos] = useState<CicloLectivo[]>([]);
   const [loading, setLoading] = useState(true);

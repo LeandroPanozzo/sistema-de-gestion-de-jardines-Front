@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Pagos.css';
 import { 
   Users, DollarSign, Calendar, Check, X, ChevronDown, ChevronRight,
-  User, BookOpen, ArrowLeft, Clock, AlertTriangle,BarChart3
+  User, BookOpen, ArrowLeft, Clock, AlertTriangle, BarChart3
 } from 'lucide-react';
 import { 
   alumnoAPI, cursoAPI, familiarAPI, pagoAPI, cuotaAPI,
@@ -10,20 +10,101 @@ import {
 } from './config/api';
 import ExportarPagos from './ExportarPagos';
 import EstadisticasPagos from './EstadisticasPagos';
+
+// Type definitions
+interface Alumno {
+  id: number;
+  nombre: string;
+  apellido: string;
+  curso: number;
+}
+
+interface Curso {
+  id: number;
+  nombre: string;
+  cuota_mensual: number;
+  dia_vencimiento_cuota: number;
+}
+
+interface Familiar {
+  id: number;
+  nombre: string;
+  apellido: string;
+  parentesco: string;
+  alumno: number;
+}
+
+interface Pago {
+  id: number;
+  alumno: number;
+  cuota: number;
+  familiar: number;
+  fecha_pago: string;
+  monto_pagado: number;
+  estado_pago: string;
+  dias_atraso_pago: number;
+}
+
+interface Cuota {
+  id: number;
+  curso: number;
+  mes: number;
+  año: number;
+  monto: number;
+  fecha_vencimiento: string;
+}
+
+interface Data {
+  alumnos: Alumno[];
+  cursos: Curso[];
+  familiares: Familiar[];
+  pagos: Pago[];
+  cuotas: Cuota[];
+}
+type ViewMode = 'alumnos' | 'cursos';
+interface UIState {
+  loading: boolean;
+  error: string;
+  expandedAlumno: number | null;
+  expandedCurso: number | null;
+  selectedYear: number;
+  selectedMonth: number;
+  viewMode: ViewMode; // Cambiar de 'alumnos' | 'cursos' a ViewMode
+  showPaymentModal: boolean;
+  paymentData: PaymentData | null;
+  showEstadisticas: boolean;
+  modalPosition: { top: number; left: number };
+}
+
+interface PaymentData {
+  alumnoId: number;
+  cursoId: number;
+  familiarId: number;
+  alumno: Alumno;
+  curso: Curso;
+  familiar: Familiar;
+}
+
 interface PagosComponentProps {
   user: UserData;
   onBack: () => void;
 }
 
-const Card = ({ children, className = "" }) => (
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+// Card components with proper typing
+const Card: React.FC<CardProps> = ({ children, className = "" }) => (
   <div className={`pagos-card ${className}`}>{children}</div>
 );
 
-const CardHeader = ({ children, className = "" }) => (
+const CardHeader: React.FC<CardProps> = ({ children, className = "" }) => (
   <div className={`pagos-card-header ${className}`}>{children}</div>
 );
 
-const CardContent = ({ children, className = "" }) => (
+const CardContent: React.FC<CardProps> = ({ children, className = "" }) => (
   <div className={`pagos-card-content ${className}`}>{children}</div>
 );
 
@@ -33,16 +114,23 @@ const mesesNombres = [
 ];
 
 const PagosComponent: React.FC<PagosComponentProps> = ({ user, onBack }) => {
-  const [data, setData] = useState({
+  const [data, setData] = useState<Data>({
     alumnos: [], cursos: [], familiares: [], pagos: [], cuotas: []
   });
-  const [ui, setUi] = useState({
-  loading: true, error: '', expandedAlumno: null, expandedCurso: null,
-  selectedYear: new Date().getFullYear(), selectedMonth: new Date().getMonth() + 1,
-  viewMode: 'alumnos', showPaymentModal: false, paymentData: null,
-  showEstadisticas: false, // AGREGAR esta línea
-  modalPosition: { top: 0, left: 0 } // Nueva propiedad para posición
-});
+  
+  const [ui, setUi] = useState<UIState>({
+    loading: true, 
+    error: '', 
+    expandedAlumno: null, 
+    expandedCurso: null,
+    selectedYear: new Date().getFullYear(), 
+    selectedMonth: new Date().getMonth() + 1,
+    viewMode: 'alumnos', 
+    showPaymentModal: false, 
+    paymentData: null,
+    showEstadisticas: false,
+    modalPosition: { top: 0, left: 0 }
+  });
 
   useEffect(() => { loadData(); }, [ui.selectedYear, ui.selectedMonth]);
 
@@ -55,11 +143,14 @@ const PagosComponent: React.FC<PagosComponentProps> = ({ user, onBack }) => {
       ]);
       
       setData({
-        alumnos: alumnosRes.data, cursos: cursosRes.data, familiares: familiaresRes.data,
-        pagos: pagosRes.data, cuotas: cuotasRes.data
+        alumnos: alumnosRes.data, 
+        cursos: cursosRes.data, 
+        familiares: familiaresRes.data,
+        pagos: pagosRes.data, 
+        cuotas: cuotasRes.data
       });
     } catch (err) {
-      const apiError = handleAPIError(err);
+      const apiError = handleAPIError(err as any);
       setUi(prev => ({ 
         ...prev, 
         error: apiError.type === 'auth' 
@@ -72,72 +163,76 @@ const PagosComponent: React.FC<PagosComponentProps> = ({ user, onBack }) => {
   };
 
   // Función auxiliar para formatear fechas para la API
-  const formatearFechaParaAPI = (fecha) => {
+  const formatearFechaParaAPI = (fecha: Date | null): string | null => {
     if (!fecha) return null;
     return fecha.toISOString().split('T')[0];
   };
 
   // Función mejorada para calcular fecha de vencimiento
-  const getFechaVencimiento = (curso, mes, año) => {
-    if (!curso) return null;
-    
+  const getFechaVencimiento = (curso: Curso, mes: number, año: number): Date => {
     const ultimoDiaMes = new Date(año, mes, 0).getDate();
     const diaVencimiento = Math.min(curso.dia_vencimiento_cuota || 10, ultimoDiaMes);
     return new Date(año, mes - 1, diaVencimiento);
   };
 
   // Función getCuotaDelMes CORREGIDA con fecha_vencimiento
-  const getCuotaDelMes = async (cursoId, mes, año) => {
-    let cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año);
+const getCuotaDelMes = async (cursoId: number, mes: number, año: number): Promise<Cuota | null> => {
+  let cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año) || null;
+  
+  if (!cuota) {
+    const curso = data.cursos.find(c => c.id === cursoId);
+    if (!curso) return null;
     
-    if (!cuota) {
-      const curso = data.cursos.find(c => c.id === cursoId);
-      if (!curso) return null;
+    try {
+      // Calcular la fecha de vencimiento
+      const fechaVencimiento = getFechaVencimiento(curso, mes, año);
+      const fechaVencimientoFormatted = formatearFechaParaAPI(fechaVencimiento);
       
-      try {
-        // Calcular la fecha de vencimiento
-        const fechaVencimiento = getFechaVencimiento(curso, mes, año);
-        const fechaVencimientoFormatted = formatearFechaParaAPI(fechaVencimiento);
-        
-        console.log('Creando cuota con datos:', {
-          curso: cursoId, 
-          mes, 
-          año, 
-          monto: curso.cuota_mensual || 0,
-          fecha_vencimiento: fechaVencimientoFormatted
-        });
-        
-        const nuevaCuotaRes = await cuotaAPI.create({
-          curso: cursoId, 
-          mes, 
-          año, 
-          monto: curso.cuota_mensual || 0,
-          fecha_vencimiento: fechaVencimientoFormatted // ¡Campo requerido!
-        });
-        
-        cuota = nuevaCuotaRes.data;
-        setData(prev => ({ ...prev, cuotas: [...prev.cuotas, cuota] }));
-      } catch (error) {
-        console.error('Error creando cuota:', error);
-        // Log más detallado para debugging
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-        }
-        return null;
+      console.log('Creando cuota con datos:', {
+        curso: cursoId, 
+        mes, 
+        año, 
+        monto: curso.cuota_mensual || 0,
+        fecha_vencimiento: fechaVencimientoFormatted
+      });
+      
+      const nuevaCuotaRes = await cuotaAPI.create({
+        curso: cursoId, 
+        mes, 
+        año, 
+        monto: curso.cuota_mensual || 0,
+        fecha_vencimiento: fechaVencimientoFormatted
+      });
+      
+      cuota = nuevaCuotaRes.data;
+      setData(prev => ({ ...prev, cuotas: [...prev.cuotas, cuota!] }));
+    } catch (error: any) {
+      console.error('Error creando cuota:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
       }
+      return null;
     }
-    return cuota;
-  };
+  }
+  return cuota;
+};
 
-  const openPaymentModal = (alumnoId, cursoId, familiarId, event) => {
+  const openPaymentModal = (
+    alumnoId: number, 
+    cursoId: number, 
+    familiarId: number, 
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     const alumno = data.alumnos.find(a => a.id === alumnoId);
     const curso = data.cursos.find(c => c.id === cursoId);
     const familiar = data.familiares.find(f => f.id === familiarId);
     
+    if (!alumno || !curso || !familiar) return;
+    
     // Obtener posición del botón
-    const buttonRect = event.target.getBoundingClientRect();
+    const buttonRect = (event.target as HTMLElement).getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     
     setUi(prev => ({
@@ -162,14 +257,18 @@ const PagosComponent: React.FC<PagosComponentProps> = ({ user, onBack }) => {
   const closePaymentModal = () => {
     setUi(prev => ({ ...prev, showPaymentModal: false, paymentData: null }));
   };
-const mostrarEstadisticas = () => {
-  setUi(prev => ({ ...prev, showEstadisticas: true }));
-};
 
-const volverDePagos = () => {
-  setUi(prev => ({ ...prev, showEstadisticas: false }));
-};
-  const handlePagoConMes = async (mes, año) => {
+  const mostrarEstadisticas = () => {
+    setUi(prev => ({ ...prev, showEstadisticas: true }));
+  };
+
+  const volverDePagos = () => {
+    setUi(prev => ({ ...prev, showEstadisticas: false }));
+  };
+
+  const handlePagoConMes = async (mes: number, año: number) => {
+    if (!ui.paymentData) return;
+    
     const { alumnoId, cursoId, familiarId, curso } = ui.paymentData;
     
     try {
@@ -183,7 +282,7 @@ const volverDePagos = () => {
       const fechaVencimiento = getFechaVencimiento(curso, mes, año);
       const esAtraso = fechaHoy > fechaVencimiento;
       
-      const diasAtraso = esAtraso ? Math.ceil((fechaHoy - fechaVencimiento) / (1000 * 60 * 60 * 24)) : 0;
+      const diasAtraso = esAtraso ? Math.ceil((fechaHoy.getTime() - fechaVencimiento.getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
       const confirmMessage = esAtraso 
         ? `¿Confirmar pago de ${mesesNombres[mes - 1]} ${año} CON ATRASO (${diasAtraso} días)?`
@@ -205,166 +304,173 @@ const volverDePagos = () => {
       closePaymentModal();
       loadData();
     } catch (err) {
-      const apiError = handleAPIError(err);
+      const apiError = handleAPIError(err as any);
       alert(`Error al registrar el pago: ${apiError.message}`);
       console.error('Error completo al registrar pago:', err);
     }
   };
 
- const PaymentModal = () => {
-  if (!ui.showPaymentModal || !ui.paymentData) return null;
+  const PaymentModal = () => {
+    if (!ui.showPaymentModal || !ui.paymentData) return null;
 
-  const { alumno, curso, familiar } = ui.paymentData;
-  const añoActual = new Date().getFullYear();
+    const { alumno, curso, familiar } = ui.paymentData;
+    const añoActual = new Date().getFullYear();
 
-  return (
-    <>
-      {/* Overlay con efecto blur */}
-      <div className="pagos-modal-overlay" onClick={closePaymentModal}>
-        <div className="pagos-modal-backdrop"></div>
-      </div>
-      
-      {/* Modal posicionado */}
-      <div 
-        className="pagos-modal-positioned"
-        style={{
-          top: `${ui.modalPosition.top}px`,
-          left: `${ui.modalPosition.left}px`
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header con gradiente */}
-        <div className="pagos-modal-header">
-          <div className="pagos-modal-header-content">
-            <div className="pagos-modal-title">
-              <DollarSign className="w-5 h-5" />
-              <h3>Registrar Pago</h3>
+    return (
+      <>
+        {/* Overlay con efecto blur */}
+        <div className="pagos-modal-overlay" onClick={closePaymentModal}>
+          <div className="pagos-modal-backdrop"></div>
+        </div>
+        
+        {/* Modal posicionado */}
+        <div 
+          className="pagos-modal-positioned"
+          style={{
+            top: `${ui.modalPosition.top}px`,
+            left: `${ui.modalPosition.left}px`
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header con gradiente */}
+          <div className="pagos-modal-header">
+            <div className="pagos-modal-header-content">
+              <div className="pagos-modal-title">
+                <DollarSign className="w-5 h-5" />
+                <h3>Registrar Pago</h3>
+              </div>
+              <button onClick={closePaymentModal} className="pagos-modal-close">
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <button onClick={closePaymentModal} className="pagos-modal-close">
-              <X className="w-4 h-4" />
+          </div>
+          
+          {/* Información del pago */}
+          <div className="pagos-modal-info">
+            <div className="pagos-info-card">
+              <div className="pagos-info-row">
+                <User className="w-4 h-4 text-purple-500" />
+                <span className="pagos-info-label">Alumno:</span>
+                <span className="pagos-info-value">{alumno.nombre} {alumno.apellido}</span>
+              </div>
+              <div className="pagos-info-row">
+                <BookOpen className="w-4 h-4 text-blue-500" />
+                <span className="pagos-info-label">Curso:</span>
+                <span className="pagos-info-value">{curso.nombre}</span>
+              </div>
+              <div className="pagos-info-row">
+                <Users className="w-4 h-4 text-green-500" />
+                <span className="pagos-info-label">Familiar:</span>
+                <span className="pagos-info-value">{familiar.nombre} {familiar.apellido}</span>
+              </div>
+              <div className="pagos-info-divider"></div>
+              <div className="pagos-info-row">
+                <DollarSign className="w-4 h-4 text-yellow-500" />
+                <span className="pagos-info-label">Cuota mensual:</span>
+                <span className="pagos-info-value pagos-price">${curso.cuota_mensual}</span>
+              </div>
+              <div className="pagos-info-row">
+                <Calendar className="w-4 h-4 text-red-500" />
+                <span className="pagos-info-label">Vence día:</span>
+                <span className="pagos-info-value">{curso.dia_vencimiento_cuota || 10} de cada mes</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Selector de meses mejorado */}
+          <div className="pagos-modal-months">
+            <h4 className="pagos-months-title">
+              <Calendar className="w-4 h-4" />
+              Seleccionar mes a pagar
+            </h4>
+            
+            <div className="pagos-months-grid">
+              {mesesNombres.map((mes, index) => {
+                const mesNum = index + 1;
+                const fechaVencimiento = getFechaVencimiento(curso, mesNum, añoActual);
+                const hoy = new Date();
+                const esAtraso = hoy > fechaVencimiento;
+                const yaPagado = yaPagoCuota(alumno.id, curso.id, mesNum, añoActual);
+                
+                const getStatusInfo = () => {
+                  if (yaPagado) return { icon: Check, text: 'Pagado', class: 'pagado' };
+                  if (esAtraso) return { icon: AlertTriangle, text: 'Con atraso', class: 'atraso' };
+                  return { icon: Clock, text: 'A tiempo', class: 'tiempo' };
+                };
+                
+                const status = getStatusInfo();
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handlePagoConMes(mesNum, añoActual)}
+                    disabled={yaPagado}
+                    className={`pagos-month-card ${status.class}`}
+                    title={`${mes} ${añoActual} - ${status.text}`}
+                  >
+                    <div className="pagos-month-header">
+                      <span className="pagos-month-name">{mes}</span>
+                      <status.icon className="w-3 h-3" />
+                    </div>
+                    
+                    <div className="pagos-month-status">
+                      {status.text}
+                    </div>
+                    
+                    <div className="pagos-month-due">
+                      Vence: {fechaVencimiento?.getDate()}/{fechaVencimiento?.getMonth() + 1}
+                    </div>
+                    
+                    {!yaPagado && (
+                      <div className="pagos-month-amount">
+                        ${curso.cuota_mensual}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Footer del modal */}
+          <div className="pagos-modal-footer">
+            <button onClick={closePaymentModal} className="pagos-modal-cancel">
+              Cancelar
             </button>
           </div>
         </div>
-        
-        {/* Información del pago */}
-        <div className="pagos-modal-info">
-          <div className="pagos-info-card">
-            <div className="pagos-info-row">
-              <User className="w-4 h-4 text-purple-500" />
-              <span className="pagos-info-label">Alumno:</span>
-              <span className="pagos-info-value">{alumno.nombre} {alumno.apellido}</span>
-            </div>
-            <div className="pagos-info-row">
-              <BookOpen className="w-4 h-4 text-blue-500" />
-              <span className="pagos-info-label">Curso:</span>
-              <span className="pagos-info-value">{curso.nombre}</span>
-            </div>
-            <div className="pagos-info-row">
-              <Users className="w-4 h-4 text-green-500" />
-              <span className="pagos-info-label">Familiar:</span>
-              <span className="pagos-info-value">{familiar.nombre} {familiar.apellido}</span>
-            </div>
-            <div className="pagos-info-divider"></div>
-            <div className="pagos-info-row">
-              <DollarSign className="w-4 h-4 text-yellow-500" />
-              <span className="pagos-info-label">Cuota mensual:</span>
-              <span className="pagos-info-value pagos-price">${curso.cuota_mensual}</span>
-            </div>
-            <div className="pagos-info-row">
-              <Calendar className="w-4 h-4 text-red-500" />
-              <span className="pagos-info-label">Vence día:</span>
-              <span className="pagos-info-value">{curso.dia_vencimiento_cuota || 10} de cada mes</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Selector de meses mejorado */}
-        <div className="pagos-modal-months">
-          <h4 className="pagos-months-title">
-            <Calendar className="w-4 h-4" />
-            Seleccionar mes a pagar
-          </h4>
-          
-          <div className="pagos-months-grid">
-            {mesesNombres.map((mes, index) => {
-              const mesNum = index + 1;
-              const fechaVencimiento = getFechaVencimiento(curso, mesNum, añoActual);
-              const hoy = new Date();
-              const esAtraso = hoy > fechaVencimiento;
-              const yaPagado = yaPagoCuota(alumno.id, curso.id, mesNum, añoActual);
-              
-              const getStatusInfo = () => {
-                if (yaPagado) return { icon: Check, text: 'Pagado', class: 'pagado' };
-                if (esAtraso) return { icon: AlertTriangle, text: 'Con atraso', class: 'atraso' };
-                return { icon: Clock, text: 'A tiempo', class: 'tiempo' };
-              };
-              
-              const status = getStatusInfo();
-
-              return (
-                <button
-                  key={index}
-                  onClick={() => handlePagoConMes(mesNum, añoActual)}
-                  disabled={yaPagado}
-                  className={`pagos-month-card ${status.class}`}
-                  title={`${mes} ${añoActual} - ${status.text}`}
-                >
-                  <div className="pagos-month-header">
-                    <span className="pagos-month-name">{mes}</span>
-                    <status.icon className="w-3 h-3" />
-                  </div>
-                  
-                  <div className="pagos-month-status">
-                    {status.text}
-                  </div>
-                  
-                  <div className="pagos-month-due">
-                    Vence: {fechaVencimiento?.getDate()}/{fechaVencimiento?.getMonth() + 1}
-                  </div>
-                  
-                  {!yaPagado && (
-                    <div className="pagos-month-amount">
-                      ${curso.cuota_mensual}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        
-        {/* Footer del modal */}
-        <div className="pagos-modal-footer">
-          <button onClick={closePaymentModal} className="pagos-modal-cancel">
-            Cancelar
-          </button>
-        </div>
-      </div>
-    </>
-  );
-};
+      </>
+    );
+  };
 
   // Funciones auxiliares simplificadas
-  const getAlumnoFamiliares = (alumnoId) => data.familiares.filter(f => f.alumno === alumnoId);
-  const getAlumnoCurso = (alumnoId) => {
+  const getAlumnoFamiliares = (alumnoId: number): Familiar[] => 
+    data.familiares.filter(f => f.alumno === alumnoId);
+  
+  const getAlumnoCurso = (alumnoId: number): Curso | null => {
     const alumno = data.alumnos.find(a => a.id === alumnoId);
-    return alumno?.curso ? data.cursos.find(c => c.id === alumno.curso) : null;
+    return alumno?.curso ? data.cursos.find(c => c.id === alumno.curso) || null : null;
   };
-  const yaPagoCuota = (alumnoId, cursoId, mes, año) => {
-    const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año);
-    return cuota ? data.pagos.some(p => p.alumno === alumnoId && p.cuota === cuota.id) : false;
-  };
-  const getAlumnosDeCurso = (cursoId) => data.alumnos.filter(a => a.curso === cursoId);
-  const getPagosCursoMes = (cursoId, mes, año) => {
-    const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año);
-    return cuota ? data.pagos.filter(p => p.cuota === cuota.id) : [];
-  };
-  const getCuotaInfo = (cursoId, mes, año) => {
-    const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año);
-    if (cuota) return cuota;
-    const curso = data.cursos.find(c => c.id === cursoId);
-    return curso ? { monto: curso.cuota_mensual || 0, fecha_vencimiento: null } : null;
-  };
+  
+  const yaPagoCuota = (alumnoId: number, cursoId: number, mes: number, año: number): boolean => {
+  const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año) || null;
+  return cuota ? data.pagos.some(p => p.alumno === alumnoId && p.cuota === cuota.id) : false;
+};
+  
+  const getAlumnosDeCurso = (cursoId: number): Alumno[] => 
+    data.alumnos.filter(a => a.curso === cursoId);
+  
+const getPagosCursoMes = (cursoId: number, mes: number, año: number): Pago[] => {
+  const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año) || null;
+  return cuota ? data.pagos.filter(p => p.cuota === cuota.id) : [];
+};
+  
+  const getCuotaInfo = (cursoId: number, mes: number, año: number): Cuota | { monto: number; fecha_vencimiento: null } | null => {
+  const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año) || null;
+  if (cuota) return cuota;
+  const curso = data.cursos.find(c => c.id === cursoId) || null;
+  return curso ? { monto: curso.cuota_mensual || 0, fecha_vencimiento: null } : null;
+};
 
   if (ui.loading) {
     return (
@@ -455,7 +561,7 @@ const volverDePagos = () => {
                               <button
                                 onClick={(e) => openPaymentModal(alumno.id, curso.id, familiar.id, e)}
                                 className="pagos-pagar-button"
-                                >
+                              >
                                 <DollarSign className="w-4 h-4" />
                                 Registrar Pago
                               </button>
@@ -589,7 +695,8 @@ const volverDePagos = () => {
       })}
     </div>
   );
-if (ui.showEstadisticas) {
+
+  if (ui.showEstadisticas) {
   return (
     <EstadisticasPagos 
       user={user} 
@@ -620,8 +727,8 @@ if (ui.showEstadisticas) {
         <div className="pagos-controls pagos-slide-in">
           <div className="pagos-view-toggle">
             {[
-              { mode: 'alumnos', icon: User, label: 'Ver por Alumnos' },
-              { mode: 'cursos', icon: BookOpen, label: 'Ver por Cursos' }
+              { mode: 'alumnos' as ViewMode, icon: User, label: 'Ver por Alumnos' },
+              { mode: 'cursos' as ViewMode, icon: BookOpen, label: 'Ver por Cursos' }
             ].map(({ mode, icon: Icon, label }) => (
               <button
                 key={mode}

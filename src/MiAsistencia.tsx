@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle, XCircle, Calendar, User, ArrowLeft, Bell, AlertTriangle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { cursoAPI, asistenciaAPI, handleAPIError, UserData } from './config/api';
 import './MiAsistencia.css';
 
@@ -31,8 +30,7 @@ interface MiAsistenciaProps {
   onBack: () => void;
 }
 
-const MiAsistencia: React.FC<MiAsistenciaProps> = ({ user, onBack }) => {
-  const navigate = useNavigate();
+const MiAsistencia: React.FC<MiAsistenciaProps> = ({ onBack }) => {
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [registros, setRegistros] = useState<RegistroAsistencia[]>([]);
   const [estadoRegistro, setEstadoRegistro] = useState<EstadoRegistro | null>(null);

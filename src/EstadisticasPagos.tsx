@@ -1,14 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import './EstadisticasPagos.css';
 import { 
-  BarChart3, PieChart, TrendingUp, TrendingDown, Users, DollarSign, 
-  Calendar, AlertTriangle, CheckCircle, Clock, ArrowLeft, BookOpen,
-  Download, Filter, Eye
+  BarChart3, PieChart, TrendingUp, Users, DollarSign, 
+   AlertTriangle, CheckCircle, Clock, ArrowLeft, BookOpen
 } from 'lucide-react';
 import { 
   alumnoAPI, cursoAPI, familiarAPI, pagoAPI, cuotaAPI,
   handleAPIError, UserData 
 } from './config/api';
+
+// Interfaces para los tipos de datos
+interface Curso {
+  id: number;
+  nombre: string;
+  cuota_mensual: string | number;
+  // Agrega otras propiedades del curso según tu API
+}
+
+interface Alumno {
+  id: number;
+  curso: number;
+  // Agrega otras propiedades del alumno según tu API
+}
+
+interface Familiar {
+  id: number;
+  // Agrega otras propiedades del familiar según tu API
+}
+
+interface Pago {
+  id: number;
+  alumno: number;
+  cuota: number;
+  monto_pagado: string | number;
+  estado_pago: 'a_tiempo' | 'con_atraso';
+  dias_atraso_pago?: number;
+  // Agrega otras propiedades del pago según tu API
+}
+
+interface Cuota {
+  id: number;
+  curso: number;
+  mes: number;
+  año: number;
+  // Agrega otras propiedades de la cuota según tu API
+}
 
 interface EstadisticasPagosProps {
   user: UserData;
@@ -46,15 +82,21 @@ interface EstadisticasGenerales {
   promedioAtrasoGeneral: number;
 }
 
-const Card = ({ children, className = "" }) => (
+// Interfaces para los componentes Card
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+const Card: React.FC<CardProps> = ({ children, className = "" }) => (
   <div className={`estadisticas-card ${className}`}>{children}</div>
 );
 
-const CardHeader = ({ children, className = "" }) => (
+const CardHeader: React.FC<CardProps> = ({ children, className = "" }) => (
   <div className={`estadisticas-card-header ${className}`}>{children}</div>
 );
 
-const CardContent = ({ children, className = "" }) => (
+const CardContent: React.FC<CardProps> = ({ children, className = "" }) => (
   <div className={`estadisticas-card-content ${className}`}>{children}</div>
 );
 
@@ -63,11 +105,11 @@ const mesesNombres = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-const formatearMonto = (monto) => {
-  if (monto === null || monto === undefined || isNaN(monto)) {
+const formatearMonto = (monto: string | number | null | undefined): string => {
+  if (monto === null || monto === undefined || isNaN(Number(monto))) {
     return '0.00';
   }
-  const numero = parseFloat(monto);
+  const numero = parseFloat(String(monto));
   return numero.toLocaleString('es-AR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -75,18 +117,30 @@ const formatearMonto = (monto) => {
 };
 
 const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) => {
-  const [data, setData] = useState({
-    alumnos: [], cursos: [], familiares: [], pagos: [], cuotas: []
+  const [data, setData] = useState<{
+    alumnos: Alumno[];
+    cursos: Curso[];
+    familiares: Familiar[];
+    pagos: Pago[];
+    cuotas: Cuota[];
+  }>({
+    alumnos: [], 
+    cursos: [], 
+    familiares: [], 
+    pagos: [], 
+    cuotas: []
   });
+
   const [ui, setUi] = useState({
     loading: true,
     error: '',
     selectedYear: new Date().getFullYear(),
     selectedMonth: new Date().getMonth() + 1,
     selectedCurso: 'todos',
-    viewMode: 'resumen',
-    isYearView: false // Nueva propiedad
+    viewMode: 'resumen' as 'resumen' | 'detalle',
+    isYearView: false
   });
+
   const [estadisticas, setEstadisticas] = useState<{
     generales: EstadisticasGenerales | null;
     porCurso: EstadisticasCurso[];
@@ -98,23 +152,26 @@ const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) =
   useEffect(() => { loadData(); }, []);
   useEffect(() => { calcularEstadisticas(); }, [data, ui.selectedYear, ui.selectedMonth, ui.selectedCurso, ui.isYearView]);
 
-  const loadData = async () => {
+  const loadData = async (): Promise<void> => {
     try {
       setUi(prev => ({ ...prev, loading: true, error: '' }));
       const [alumnosRes, cursosRes, familiaresRes, pagosRes, cuotasRes] = await Promise.all([
-        alumnoAPI.getAll(), cursoAPI.getAll(), familiarAPI.getAll(), 
-        pagoAPI.getAll(), cuotaAPI.getAll()
+        alumnoAPI.getAll(), 
+        cursoAPI.getAll(), 
+        familiarAPI.getAll(), 
+        pagoAPI.getAll(), 
+        cuotaAPI.getAll()
       ]);
       
       setData({
-        alumnos: alumnosRes.data, 
-        cursos: cursosRes.data, 
-        familiares: familiaresRes.data,
-        pagos: pagosRes.data, 
-        cuotas: cuotasRes.data
+        alumnos: alumnosRes.data as Alumno[], 
+        cursos: cursosRes.data as Curso[], 
+        familiares: familiaresRes.data as Familiar[],
+        pagos: pagosRes.data as Pago[], 
+        cuotas: cuotasRes.data as Cuota[]
       });
-    } catch (err) {
-      const apiError = handleAPIError(err);
+    } catch (err: unknown) {
+      const apiError = handleAPIError(err as any);
       setUi(prev => ({ 
         ...prev, 
         error: apiError.type === 'auth' 
@@ -126,13 +183,13 @@ const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) =
     }
   };
 
-  const yaPagoCuota = (alumnoId, cursoId, mes, año) => {
+  const yaPagoCuota = (alumnoId: number, cursoId: number, mes: number, año: number): Pago | undefined => {
     const cuota = data.cuotas.find(c => c.curso === cursoId && c.mes === mes && c.año === año);
-    if (!cuota) return false;
+    if (!cuota) return undefined;
     return data.pagos.find(p => p.alumno === alumnoId && p.cuota === cuota.id);
   };
 
-  const calcularEstadisticas = () => {
+  const calcularEstadisticas = (): void => {
     if (!data.cursos.length || !data.alumnos.length) return;
 
     const cursosAFiltrar = ui.selectedCurso === 'todos' 
@@ -157,7 +214,7 @@ const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) =
         alumnosCurso.forEach(alumno => {
           const pago = yaPagoCuota(alumno.id, curso.id, mes, ui.selectedYear);
           if (pago) {
-            montoRecaudado += parseFloat(pago.monto_pagado) || 0;
+            montoRecaudado += parseFloat(String(pago.monto_pagado)) || 0;
             if (pago.estado_pago === 'con_atraso') {
               pagosConAtraso++;
               sumaAtrasos += pago.dias_atraso_pago || 0;
@@ -172,7 +229,7 @@ const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) =
       });
 
       const totalPagosEsperados = alumnosCurso.length * mesesAProcesar.length;
-      const montoTotal = totalPagosEsperados * (parseFloat(curso.cuota_mensual) || 0);
+      const montoTotal = totalPagosEsperados * (parseFloat(String(curso.cuota_mensual)) || 0);
       const montosPendientes = montoTotal - montoRecaudado;
 
       return {
@@ -248,7 +305,7 @@ const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) =
     );
   }
 
-  const renderResumenGeneral = () => {
+  const renderResumenGeneral = (): JSX.Element | null => {
     if (!estadisticas.generales) return null;
 
     const { generales } = estadisticas;
@@ -404,7 +461,7 @@ const EstadisticasPagos: React.FC<EstadisticasPagosProps> = ({ user, onBack }) =
     );
   };
 
-  const renderDetallePorCurso = () => {
+  const renderDetallePorCurso = (): JSX.Element => {
     return (
       <div className="estadisticas-detalle">
         <div className="estadisticas-cursos-grid">

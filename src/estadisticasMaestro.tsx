@@ -77,7 +77,9 @@ const EstadisticasMaestros: React.FC<EstadisticasMaestrosProps> = ({ user, onBac
       console.log('Registros response:', registrosResponse.data);
 
       // Extraer cursos únicos de los registros
-      const cursosUnicos: string[] = [...new Set(registrosResponse.data.map((r: RegistroAsistencia) => r.curso_nombre))];
+      const cursosUnicos: string[] = [...new Set(
+        registrosResponse.data.map((r: RegistroAsistencia) => r.curso_nombre)
+      )] as string[];
       setCursosDisponibles(cursosUnicos);
 
       setMaestros(maestrosData);

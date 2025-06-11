@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { authAPI, handleAPIError, UserData } from './config/api';
+import { handleAPIError, UserData } from './config/api';
 import { Clock, User, Calendar, CheckCircle, AlertCircle, ArrowLeft, UserX, School } from 'lucide-react';
 import api from './config/api';
 import { AxiosError } from 'axios';
@@ -115,20 +115,6 @@ const RegistrarAsistencias: React.FC<RegistrarAsistenciasProps> = ({ user, onBac
       
       setAvisosPendientes(avisosResponse.data);
       setCursosEnHorario(cursosResponse.data);
-      setError('');
-    } catch (err) {
-      const apiError: APIError = handleAPIError(err as AxiosError);
-      setError(apiError.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const cargarAvisosPendientes = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const response = await avisoDirectivoAPI.pendientes();
-      setAvisosPendientes(response.data);
       setError('');
     } catch (err) {
       const apiError: APIError = handleAPIError(err as AxiosError);

@@ -3,7 +3,7 @@ import { User, Lock, Eye, EyeOff, AlertCircle, LogIn, HelpCircle } from 'lucide-
 import { authAPI, setAuthToken, handleAPIError } from './config/api';
 import ForgotPassword from './ForgotPassword';
 import ResetPassword from './ResetPassword';
-import './Login.css';
+import './login.css';
 
 interface LoginData {
   username: string;

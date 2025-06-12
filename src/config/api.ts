@@ -45,9 +45,8 @@ export interface MaestroEnCurso {
 }
 // Configuración base de la API
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://tu-dominio.com/api' 
+  ? 'https://sistema-de-gestion-de-jardines-back.onrender.com/api' 
   : 'http://localhost:8000/api';
-
 // Crear instancia de Axios
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

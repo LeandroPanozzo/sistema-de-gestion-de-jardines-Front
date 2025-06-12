@@ -83,7 +83,7 @@ const Home: React.FC<HomeProps> = ({ user }) => {
       baseOptions.push(
         { 
           icon: Users, 
-          label: "Registrar asistencia", 
+          label: "Registrar asistencia MAESTROS", 
           description: "Administrar asistencia de maestros y personal",
           action: () => navigate('/registrar-asistencias')
         },

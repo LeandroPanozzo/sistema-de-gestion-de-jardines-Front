@@ -101,7 +101,7 @@ const EstadisticasMaestros: React.FC<EstadisticasMaestrosProps> = ({ user, onBac
     console.log('Token:', sessionStorage.getItem('auth_token'));
     console.log('Current URL:', window.location.href);
     console.log('API Base URL:', process.env.NODE_ENV === 'production' 
-      ? 'https://tu-dominio.com/api' 
+      ? 'https://sistema-de-gestion-de-jardines-back.onrender.com/api' 
       : 'http://localhost:8000/api');
   };
 
@@ -278,12 +278,7 @@ const EstadisticasMaestros: React.FC<EstadisticasMaestrosProps> = ({ user, onBac
         <div className="loading-content">
           <div className="loading-spinner"></div>
           <h3 className="estadisticas-subtitle">Cargando estadísticas...</h3>
-          <button 
-            onClick={debugInfo}
-            className="action-button secondary"
-          >
-            Ver información de debug
-          </button>
+          
         </div>
       </div>
     );

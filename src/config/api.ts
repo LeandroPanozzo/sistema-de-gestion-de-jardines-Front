@@ -44,9 +44,8 @@ export interface MaestroEnCurso {
   estado_asistencia: 'sin_registro' | 'ingreso_registrado' | 'completo' | 'ausente';
 }
 // Configuración base de la API
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://sistema-de-gestion-de-jardines-back.onrender.com/api' 
-  : 'http://localhost:8000/api';
+  const API_BASE_URL = 'https://sistema-de-gestion-de-jardines-back.onrender.com/api';
+
 // Crear instancia de Axios
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

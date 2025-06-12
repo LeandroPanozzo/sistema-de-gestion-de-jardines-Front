@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Pagos.css';
 import { 
   Users, DollarSign, Calendar, Check, X, ChevronDown, ChevronRight,
-  User, BookOpen, ArrowLeft, Clock, AlertTriangle, BarChart3
+  User, BookOpen, ArrowLeft, Clock, AlertTriangle, BarChart3, Search // <- AGREGAR Search
 } from 'lucide-react';
 import { 
   alumnoAPI, cursoAPI, familiarAPI, pagoAPI, cuotaAPI,
@@ -64,6 +64,7 @@ interface Data {
 type ViewMode = 'alumnos' | 'cursos';
 interface UIState {
   loading: boolean;
+  searchTerm: string;
   error: string;
   expandedAlumno: number | null;
   expandedCurso: number | null;
@@ -120,6 +121,7 @@ const PagosComponent: React.FC<PagosComponentProps> = ({ user, onBack }) => {
   
   const [ui, setUi] = useState<UIState>({
     loading: true, 
+    searchTerm: '',
     error: '', 
     expandedAlumno: null, 
     expandedCurso: null,
@@ -167,7 +169,15 @@ const PagosComponent: React.FC<PagosComponentProps> = ({ user, onBack }) => {
     if (!fecha) return null;
     return fecha.toISOString().split('T')[0];
   };
-
+const filteredAlumnos = data.alumnos.filter(alumno => {
+  if (!ui.searchTerm) return true;
+  const searchLower = ui.searchTerm.toLowerCase();
+  return (
+    alumno.nombre.toLowerCase().includes(searchLower) ||
+    alumno.apellido.toLowerCase().includes(searchLower) ||
+    `${alumno.nombre} ${alumno.apellido}`.toLowerCase().includes(searchLower)
+  );
+});
   // Función mejorada para calcular fecha de vencimiento
   const getFechaVencimiento = (curso: Curso, mes: number, año: number): Date => {
     const ultimoDiaMes = new Date(año, mes, 0).getDate();
@@ -501,7 +511,7 @@ const getPagosCursoMes = (cursoId: number, mes: number, año: number): Pago[] =>
 
   const renderAlumnoView = () => (
     <div className="space-y-4">
-      {data.alumnos.map(alumno => {
+      {filteredAlumnos.map(alumno => {
         const curso = getAlumnoCurso(alumno.id);
         const cuotaInfo = curso ? getCuotaInfo(curso.id, ui.selectedMonth, ui.selectedYear) : null;
         const yaPago = curso ? yaPagoCuota(alumno.id, curso.id, ui.selectedMonth, ui.selectedYear) : false;
@@ -618,7 +628,9 @@ const getPagosCursoMes = (cursoId: number, mes: number, año: number): Pago[] =>
                   <p>{alumnosCurso.length} alumnos • {pagosMes.length} pagos en {mesesNombres[ui.selectedMonth - 1]}</p>
                   <p>Cuota mensual: ${curso.cuota_mensual || 0} • Vence el día {curso.dia_vencimiento_cuota || 10}</p>
                 </div>
-                
+                <div className="pagos-search">
+
+              </div>
                 <button
                   onClick={() => setUi(prev => ({ 
                     ...prev, 
@@ -648,7 +660,21 @@ const getPagosCursoMes = (cursoId: number, mes: number, año: number): Pago[] =>
                           return (
                             <div key={alumno.id} className={`pagos-alumno-item ${yaPago ? 'pagado' : 'pendiente'}`}>
                               <span>{alumno.nombre} {alumno.apellido}</span>
-                              {yaPago ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                              <div className="flex items-center gap-2">
+                                {yaPago ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                                {!yaPago && (() => {
+                                  const familiaresAlumno = getAlumnoFamiliares(alumno.id);
+                                  return familiaresAlumno.length > 0 ? (
+                                    <button
+                                      onClick={(e) => openPaymentModal(alumno.id, curso.id, familiaresAlumno[0].id, e)}
+                                      className="pagos-pagar-button-small"
+                                    >
+                                      <DollarSign className="w-3 h-3" />
+                                      Pagar
+                                    </button>
+                                  ) : null;
+                                })()}
+                              </div>
                             </div>
                           );
                         })}
@@ -740,7 +766,26 @@ const getPagosCursoMes = (cursoId: number, mes: number, año: number): Pago[] =>
               </button>
             ))}
           </div>
-          
+          <div className="pagos-search">
+  <div className="pagos-search-container">
+    <Search className="w-4 h-4 pagos-search-icon" />
+    <input
+      type="text"
+      placeholder="Buscar alumno por nombre o apellido..."
+      value={ui.searchTerm}
+      onChange={(e) => setUi(prev => ({ ...prev, searchTerm: e.target.value }))}
+      className="pagos-search-input"
+    />
+    {ui.searchTerm && (
+      <button
+        onClick={() => setUi(prev => ({ ...prev, searchTerm: '' }))}
+        className="pagos-search-clear"
+      >
+        <X className="w-3 h-3" />
+      </button>
+    )}
+  </div>
+</div>
           <div className="pagos-filters">
             <select
               value={ui.selectedYear}

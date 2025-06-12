@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, MessageCircle, User, Bot, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { authAPI, UserData } from './config/api';
-import './Chatbot.css'; // Importar el archivo CSS
+import './Chatbot.css';
 
 interface Message {
   id: string;
@@ -10,10 +10,9 @@ interface Message {
   timestamp: Date;
 }
 
-// Actualizada la interfaz para incluir todas las props que necesitas
 interface ChatbotProps {
   className?: string;
-  user?: UserData;  // Hacer opcional ya que el componente puede obtenerlo internamente
+  user?: UserData;
   onBack?: () => void;
 }
 
@@ -33,7 +32,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
       try {
         let userData: UserData;
         
-        // Si se pasó user como prop, usarlo; sino obtenerlo de la API
         if (propUser) {
           userData = propUser;
           setUser(userData);
@@ -43,10 +41,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
           setUser(userData);
         }
 
-        // Verificar si es maestro o directivo
         if (userData.es_maestro || userData.es_directivo) {
           setIsAuthorized(true);
-          // Mensaje de bienvenida
           const welcomeMessage: Message = {
             id: Date.now().toString(),
             content: `¡Hola ${userData.first_name}! Soy tu asistente del jardín maternal. Puedo ayudarte con consultas sobre educación inicial, desarrollo infantil, actividades pedagógicas, manejo de grupo, comunicación con padres y todo lo relacionado con nuestro jardín. ¿En qué puedo ayudarte hoy?`,
@@ -65,46 +61,122 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
     checkUserAuthorization();
   }, [propUser]);
 
-  // Auto-scroll a los mensajes más recientes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Función para llamar a la API de DeepSeek
+  // Función mejorada para llamar a la API
   const callDeepSeekAPI = async (userMessage: string): Promise<string> => {
     try {
+      // Diferentes formas de obtener la API key
+      let API_KEY: string | undefined;
+      
+      // Método 1: process.env (si está disponible)
+      try {
+        API_KEY = process?.env?.REACT_APP_OPENROUTER_API_KEY;
+      } catch (e) {
+        console.log('process.env no disponible, usando método alternativo');
+      }
+      
+      // Método 2: desde window (si está configurado)
+      if (!API_KEY && typeof window !== 'undefined') {
+        API_KEY = (window as any).REACT_APP_OPENROUTER_API_KEY;
+      }
+      
+      // Método 3: Fallback temporal - REEMPLAZA CON TU API KEY
+      if (!API_KEY) {
+        API_KEY = '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';
+      }
+
+      if (!API_KEY || API_KEY === 'TU_API_KEY_AQUI') {
+        throw new Error('API Key no configurada correctamente');
+      }
+
+      console.log('API Key found:', API_KEY ? '✓' : '✗'); // Para debugging
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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'
+          'Authorization': `Bearer ${API_KEY}`,
+          'HTTP-Referer': window.location.origin, // Opcional: para identificar tu app
+          'X-Title': 'Jardín Maternal Chatbot', // Opcional: nombre de tu app
         },
         body: JSON.stringify({
-          model: 'deepseek/deepseek-r1:free',
+          model: 'deepseek/deepseek-r1:free',  // Removido :free - prueba sin el sufijo
           messages: [
             {
               role: 'system',
-              content: 'Estamos en un jardín maternal, así que debes responder como si te estuvieran consultando cosas propias de un jardín maternal. Eres un asistente especializado en educación inicial, desarrollo infantil, actividades pedagógicas, manejo de grupo y comunicación con padres. Responde siempre en español de manera profesional pero amigable.'
+              content: `Eres un asistente especializado en educación inicial y jardín maternal. 
+              Tu audiencia son maestros y directivos de jardín maternal. 
+              Proporciona respuestas profesionales pero amigables sobre:
+              - Desarrollo infantil temprano (0-5 años)
+              - Actividades pedagógicas apropiadas para la edad
+              - Estrategias de manejo de grupo
+              - Comunicación efectiva con padres
+              - Planificación de actividades educativas
+              - Resolución de conflictos en el aula
+              - Estimulación temprana y juego educativo
+              
+              Siempre responde en español y mantén un tono profesional pero cálido.
+              Si la consulta no está relacionada con educación inicial, redirige amablemente hacia temas del jardín maternal.`
             },
             {
               role: 'user',
               content: userMessage
             }
           ],
-          max_tokens: 500,
-          temperature: 0.7
+          max_tokens: 800,
+          temperature: 0.7,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API Error Details:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        
+        if (response.status === 401) {
+          throw new Error('API Key inválida o expirada. Verifica tu configuración.');
+        } else if (response.status === 402) {
+          throw new Error('Créditos insuficientes en tu cuenta de OpenRouter.');
+        } else if (response.status === 429) {
+          throw new Error('Límite de rate excedido. Intenta nuevamente en unos minutos.');
+        } else {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
       }
 
       const data = await response.json();
-      return data.choices[0]?.message?.content || 'Lo siento, no pude generar una respuesta en este momento.';
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Respuesta inválida de la API');
+      }
+
+      return data.choices[0].message.content || 
+             'Lo siento, no pude generar una respuesta en este momento.';
+             
     } catch (error) {
       console.error('Error calling DeepSeek API:', error);
-      return 'Lo siento, hubo un problema al conectar con el servicio. Por favor, intenta nuevamente.';
+      
+      if (error instanceof Error) {
+        // Errores específicos que podemos manejar
+        if (error.message.includes('API Key')) {
+          return 'Error de configuración: La API Key no es válida. Contacta al administrador del sistema.';
+        } else if (error.message.includes('Créditos')) {
+          return 'Sin créditos disponibles. Contacta al administrador del sistema.';
+        } else if (error.message.includes('rate')) {
+          return 'Demasiadas consultas. Por favor, espera unos minutos antes de intentar nuevamente.';
+        }
+      }
+      
+      return 'Lo siento, hubo un problema al conectar con el servicio de IA. Por favor, intenta nuevamente en unos momentos.';
     }
   };
 
@@ -134,6 +206,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
+      console.error('Error in handleSendMessage:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: 'Lo siento, hubo un error al procesar tu consulta. Por favor, intenta nuevamente.',
@@ -179,11 +252,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
 
   return (
     <div className={`${className}`}>
-      {/* Si hay onBack, mostrar como página completa */}
       {onBack ? (
         <div className="chatbot-fullscreen" style={{ padding: '1rem' }}>
           <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
-            {/* Header con botón de volver */}
             <div className="chatbot-header">
               <div className="chatbot-header-content">
                 <div className="chatbot-nav">
@@ -204,9 +275,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
               </div>
             </div>
 
-            {/* Chat container para página completa */}
             <div className="chatbot-container">
-              {/* Área de mensajes */}
               <div className="chatbot-messages">
                 {messages.map((message) => (
                   <div
@@ -249,7 +318,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Área de input */}
               <div className="chatbot-input-area">
                 <div className="chatbot-input-container">
                   <textarea
@@ -274,9 +342,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
           </div>
         </div>
       ) : (
-        // Versión flotante original
         <>
-          {/* Botón flotante para abrir/cerrar el chat */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="chatbot-float-btn"
@@ -284,10 +350,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
             <MessageCircle size={24} />
           </button>
 
-          {/* Ventana del chat */}
           {isOpen && (
             <div className="chatbot-window">
-              {/* Header */}
               <div className="chatbot-window-header">
                 <div className="chatbot-window-header-content">
                   <div className="chatbot-window-title">
@@ -308,7 +372,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
                 )}
               </div>
 
-              {/* Área de mensajes */}
               <div className="chatbot-messages">
                 {messages.map((message) => (
                   <div
@@ -351,7 +414,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Área de input */}
               <div className="chatbot-input-area">
                 <div className="chatbot-input-container">
                   <textarea

@@ -946,3 +946,132 @@
     border-radius: 8px;
   }
 }
+/* Overlay del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Cambiar de center a flex-start */
+  z-index: 1000;
+  padding: 20px; /* Agregar padding para espaciado */
+  overflow-y: auto; /* Permitir scroll en el overlay */
+}
+
+/* Contenedor del modal */
+.modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 800px;
+  max-height: calc(100vh - 40px); /* Altura máxima considerando el padding */
+  margin: 20px auto; /* Margen para centrado y espaciado */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Ocultar overflow del contenedor principal */
+}
+
+/* Header del modal - fijo */
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0; /* No permitir que se encoja */
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Contenido del modal - con scroll */
+.modal-form {
+  padding: 24px;
+  overflow-y: auto; /* Permitir scroll vertical */
+  flex: 1; /* Tomar el espacio disponible */
+  max-height: calc(100vh - 140px); /* Altura máxima menos header y acciones */
+}
+
+/* Acciones del modal - fijas en la parte inferior */
+.modal-actions {
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-shrink: 0; /* No permitir que se encoja */
+  background: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}
+
+/* Estilos para pantallas pequeñas */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-start;
+  }
+  
+  .modal {
+    max-height: calc(100vh - 20px);
+    margin: 10px auto;
+  }
+  
+  .modal-form {
+    max-height: calc(100vh - 120px);
+    padding: 16px;
+  }
+  
+  .modal-header,
+  .modal-actions {
+    padding: 16px;
+  }
+}
+
+/* Estilos adicionales para mejorar la experiencia de scroll */
+.modal-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-form::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.modal-form::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.modal-form::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Asegurar que las secciones del formulario tengan espaciado adecuado */
+.form-section {
+  margin-bottom: 24px;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Mejorar el espaciado de los mensajes de error */
+.error-message {
+  margin: 16px 0;
+  padding: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

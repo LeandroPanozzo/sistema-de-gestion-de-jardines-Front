@@ -57,9 +57,7 @@ const Register: React.FC<RegisterProps> = ({ onGoToLogin }) => {
   const [success, setSuccess] = useState<boolean>(false);
 
   // Configuración de la API - ajusta según tu configuración
-  const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://tu-dominio.com/api' 
-    : 'http://localhost:8000/api';
+  const API_BASE_URL = 'https://sistema-de-gestion-de-jardines-back.onrender.com/api';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     const { name, value } = e.target;
@@ -138,8 +136,7 @@ const Register: React.FC<RegisterProps> = ({ onGoToLogin }) => {
       // Preparar datos para enviar (excluir confirmPassword)
       const { confirmPassword, ...dataToSend } = formData;
       
-      const response = await fetch(`${API_BASE_URL}/usuarios/`, {
-        method: 'POST',
+      const response = await fetch(`${API_BASE_URL}/users/`, {        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },

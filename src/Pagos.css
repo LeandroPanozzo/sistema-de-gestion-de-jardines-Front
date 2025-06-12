@@ -407,6 +407,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem;
+  gap: 16px; /* AGREGAR esta línea para más espacio */
   border-radius: 10px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -758,4 +759,83 @@
 .pagos-month-card.atraso {
   background: linear-gradient(135deg, #fee2e2, #fecaca);
   border-color: #ef4444;
+}
+.pagos-search {
+  margin-bottom: 1rem;
+}
+
+.pagos-search-container {
+  position: relative;
+  max-width: 400px;
+}
+
+.pagos-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.pagos-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.pagos-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.pagos-search-clear {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.pagos-search-clear:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+.pagos-pagar-button-small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagos-pagar-button-small:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+.pagos-alumno-item {
+  display: flex;
+  justify-content: space-between; /* Agregar esta línea */
+  align-items: center;
+  padding: 8px 12px;
+  /* resto de estilos existentes */
 }

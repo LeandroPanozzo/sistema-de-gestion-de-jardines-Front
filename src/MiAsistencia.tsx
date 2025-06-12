@@ -258,7 +258,6 @@ const MiAsistencia: React.FC<MiAsistenciaProps> = ({ onBack }) => {
       <div className="mi-asistencia-container">
         <div className="loading-spinner">
           <Clock className="animate-spin" size={48} />
-          <p>Cargando información...</p>
         </div>
       </div>
     );

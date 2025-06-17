@@ -65,89 +65,59 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Función mejorada para llamar a la API
-  const callDeepSeekAPI = async (userMessage: string): Promise<string> => {
+  // Función para llamar a la API de Cohere
+  const callCohereAPI = async (userMessage: string): Promise<string> => {
     try {
-      // Diferentes formas de obtener la API key
-      let API_KEY: string | undefined;
-      
-      // Método 1: process.env (si está disponible)
-      try {
-        API_KEY = process?.env?.REACT_APP_OPENROUTER_API_KEY;
-      } catch (e) {
-        console.log('process.env no disponible, usando método alternativo');
-      }
-      
-      // Método 2: desde window (si está configurado)
-      if (!API_KEY && typeof window !== 'undefined') {
-        API_KEY = (window as any).REACT_APP_OPENROUTER_API_KEY;
-      }
-      
-      // Método 3: Fallback temporal - REEMPLAZA CON TU API KEY
-      if (!API_KEY) {
-        API_KEY = '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';
-      }
+      // Tu API key de Cohere
+      const COHERE_API_KEY = 'NRiS2auvPZohbPWfnvTco639t5dwJpcT4KH4OjQu';
 
-      if (!API_KEY || API_KEY === 'TU_API_KEY_AQUI') {
-        throw new Error('API Key no configurada correctamente');
-      }
+      console.log('Llamando a Cohere API...'); // Para debugging
 
-      console.log('API Key found:', API_KEY ? '✓' : '✗'); // Para debugging
-
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch('https://api.cohere.ai/v1/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
-          'HTTP-Referer': window.location.origin, // Opcional: para identificar tu app
-          'X-Title': 'Jardín Maternal Chatbot', // Opcional: nombre de tu app
+          'Authorization': `Bearer ${COHERE_API_KEY}`,
+          'X-Client-Name': 'jardin-maternal-chatbot'
         },
         body: JSON.stringify({
-          model: 'deepseek/deepseek-r1:free',  // Removido :free - prueba sin el sufijo
-          messages: [
-            {
-              role: 'system',
-              content: `Eres un asistente especializado en educación inicial y jardín maternal. 
-              Tu audiencia son maestros y directivos de jardín maternal. 
-              Proporciona respuestas profesionales pero amigables sobre:
-              - Desarrollo infantil temprano (0-5 años)
-              - Actividades pedagógicas apropiadas para la edad
-              - Estrategias de manejo de grupo
-              - Comunicación efectiva con padres
-              - Planificación de actividades educativas
-              - Resolución de conflictos en el aula
-              - Estimulación temprana y juego educativo
-              
-              Siempre responde en español y mantén un tono profesional pero cálido.
-              Si la consulta no está relacionada con educación inicial, redirige amablemente hacia temas del jardín maternal.`
-            },
-            {
-              role: 'user',
-              content: userMessage
-            }
-          ],
+          model: 'command-r-plus', // Modelo gratuito de Cohere
+          message: userMessage,
+          preamble: `Eres un asistente especializado en educación inicial y jardín maternal. 
+Tu audiencia son maestros y directivos de jardín maternal. 
+Proporciona respuestas profesionales pero amigables sobre:
+- Desarrollo infantil temprano (0-5 años)
+- Actividades pedagógicas apropiadas para la edad
+- Estrategias de manejo de grupo
+- Comunicación efectiva con padres
+- Planificación de actividades educativas
+- Resolución de conflictos en el aula
+- Estimulación temprana y juego educativo
+
+Siempre responde en español y mantén un tono profesional pero cálido.
+Si la consulta no está relacionada con educación inicial, redirige amablemente hacia temas del jardín maternal.`,
           max_tokens: 800,
           temperature: 0.7,
-          top_p: 1,
-          frequency_penalty: 0,
-          presence_penalty: 0
+          k: 0,
+          stop_sequences: [],
+          return_likelihoods: 'NONE'
         })
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API Error Details:', {
+        console.error('Cohere API Error Details:', {
           status: response.status,
           statusText: response.statusText,
           error: errorData
         });
         
         if (response.status === 401) {
-          throw new Error('API Key inválida o expirada. Verifica tu configuración.');
-        } else if (response.status === 402) {
-          throw new Error('Créditos insuficientes en tu cuenta de OpenRouter.');
+          throw new Error('API Key inválida. Verifica tu configuración de Cohere.');
         } else if (response.status === 429) {
-          throw new Error('Límite de rate excedido. Intenta nuevamente en unos minutos.');
+          throw new Error('Límite de uso excedido. Intenta nuevamente más tarde.');
+        } else if (response.status === 400) {
+          throw new Error('Error en la solicitud. Verifica los parámetros.');
         } else {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -155,24 +125,25 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
 
       const data = await response.json();
       
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Respuesta inválida de la API');
+      if (!data.text) {
+        console.error('Respuesta de Cohere sin texto:', data);
+        throw new Error('Respuesta inválida de la API de Cohere');
       }
 
-      return data.choices[0].message.content || 
+      return data.text.trim() || 
              'Lo siento, no pude generar una respuesta en este momento.';
              
     } catch (error) {
-      console.error('Error calling DeepSeek API:', error);
+      console.error('Error calling Cohere API:', error);
       
       if (error instanceof Error) {
         // Errores específicos que podemos manejar
         if (error.message.includes('API Key')) {
-          return 'Error de configuración: La API Key no es válida. Contacta al administrador del sistema.';
-        } else if (error.message.includes('Créditos')) {
-          return 'Sin créditos disponibles. Contacta al administrador del sistema.';
-        } else if (error.message.includes('rate')) {
-          return 'Demasiadas consultas. Por favor, espera unos minutos antes de intentar nuevamente.';
+          return 'Error de configuración: La API Key de Cohere no es válida. Contacta al administrador del sistema.';
+        } else if (error.message.includes('Límite')) {
+          return 'Has alcanzado el límite de uso gratuito. Por favor, espera antes de hacer más consultas.';
+        } else if (error.message.includes('400')) {
+          return 'Error en la consulta. Por favor, reformula tu pregunta.';
         }
       }
       
@@ -195,7 +166,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ className = '', user: propUser, onBac
     setIsLoading(true);
 
     try {
-      const aiResponse = await callDeepSeekAPI(userMessage.content);
+      const aiResponse = await callCohereAPI(userMessage.content);
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),

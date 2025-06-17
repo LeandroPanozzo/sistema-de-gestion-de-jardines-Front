@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, AlertCircle, CheckCircle, Key, User } from 'lucide-react';
-import {  handleAPIError } from './config/api';
-import './forgotpassword.css'; // Importamos el CSS
+import { handleAPIError, passwordResetAPI } from './config/api'; // Agregar passwordResetAPI
+import './forgotpassword.css';
 
 interface ForgotPasswordProps {
   onGoToLogin: () => void;
-  onGoToResetPassword?: () => void; // Nueva prop para navegar al reset
+  onGoToResetPassword?: () => void;
 }
 
 type RecoveryType = 'password' | 'username';
@@ -33,7 +33,11 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
 
     try {
       if (recoveryType === 'password') {
+        // Llamada a la API para recuperación de contraseña
+        await passwordResetAPI.forgotPassword(email);
       } else {
+        // Llamada a la API para recuperación de usuario
+        await passwordResetAPI.forgotUsername(email);
       }
 
       setSuccess(true);
@@ -79,7 +83,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
               Hemos enviado {recoveryType === 'password' ? 'un código de recuperación' : 'tu nombre de usuario'} a <strong>{email}</strong>
             </p>
             <p>
-              {recoveryType === 'password' && 'Usa el código que recibiste para crear una nueva contraseña, para ello volve a al inicio y apreta en el boton "ya tengo un codigo de recuperacion".'}
+              {recoveryType === 'password' && 'Usa el código que recibiste para crear una nueva contraseña, para ello vuelve al inicio y apreta en el botón "ya tengo un código de recuperación".'}
             </p>
           </div>
 

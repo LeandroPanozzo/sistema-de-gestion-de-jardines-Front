@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { passwordResetAPI, handleAPIError } from './config/api';
 
@@ -26,31 +25,9 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onGoToLogin, token: initi
   const [error, setError] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
-  const [username, setUsername] = useState('');
 
-  // Verificar token al cargar el componente
-  useEffect(() => {
-    if (formData.token) {
-      verifyToken();
-    }
-  }, [formData.token]);
-
-  const verifyToken = async () => {
-    try {
-      const response = await passwordResetAPI.verifyResetToken(formData.token);
-      setTokenValid(response.data.valid);
-      if (response.data.valid) {
-        setUsername(response.data.username);
-      } else {
-        setError(response.data.error || 'Token inválido');
-      }
-    } catch (error: any) {
-      console.error('Error verificando token:', error);
-      setTokenValid(false);
-      setError('Error al verificar el token');
-    }
-  };
+  // Eliminé el useEffect que verificaba el token automáticamente
+  // Eliminé el estado tokenValid y username para evitar asignaciones automáticas
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -149,39 +126,6 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onGoToLogin, token: initi
     );
   }
 
-  // Pantalla de token inválido
-  if (tokenValid === false) {
-    return (
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-header">
-            <div className="login-icon error">
-              <AlertCircle />
-            </div>
-            <h1 className="login-title">Token Inválido</h1>
-            <p className="login-subtitle">
-              El código de recuperación no es válido o ha expirado
-            </p>
-          </div>
-
-          <div className="alert alert-error">
-            <AlertCircle />
-            <span>{error || 'Solicita un nuevo código de recuperación'}</span>
-          </div>
-
-          <button
-            type="button"
-            className="btn btn-primary btn-full"
-            onClick={onGoToLogin}
-          >
-            <ArrowLeft size={16} />
-            Volver al Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="login-container">
       <div className="login-card">
@@ -191,7 +135,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onGoToLogin, token: initi
           </div>
           <h1 className="login-title">Nueva Contraseña</h1>
           <p className="login-subtitle">
-            {username ? `Cambiando contraseña para: ${username}` : 'Ingresa tu nueva contraseña'}
+            Ingresa tu nueva contraseña
           </p>
         </div>
 

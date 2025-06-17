@@ -62,17 +62,11 @@ const Home: React.FC<HomeProps> = ({ user }) => {
           label: "Asistencia de Alumnos", 
           description: "Ver asistencia de alumnos",
           action: () => navigate('/Asistencia')
-        }
-      );
-    }
-
-    // Opciones para maestros (incluye maestros que también son directivos)
-    if (user.es_directivo) {
-      baseOptions.push(
+        },
         { 
           icon: UserCheck, 
-          label: "consultar a la IA", 
-          description: "hacer preguntas a la ia sobre diversos temas",
+          label: "Consultar a la IA", 
+          description: "Hacer preguntas a la IA sobre diversos temas",
           action: () => navigate('/consultaIA')
         }
       );
@@ -101,8 +95,8 @@ const Home: React.FC<HomeProps> = ({ user }) => {
         },
         { 
           icon: Settings, 
-          label: "registro de pagos", 
-          description: "ver los pagos de este mes",
+          label: "Registro de pagos", 
+          description: "Ver los pagos de este mes",
           action: () => navigate('/pagos')
         }
       );

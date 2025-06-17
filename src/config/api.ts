@@ -176,6 +176,10 @@ export const cursoAPI = {
   update: (id: number, cursoData: any): Promise<AxiosResponse> => api.patch(`/cursos/${id}/`, cursoData),
   delete: (id: number): Promise<AxiosResponse> => api.delete(`/cursos/${id}/`),
   misCursos: (): Promise<AxiosResponse> => api.get('/cursos/mis_cursos/'),
+   getMisCursos: async () => {
+    const response = await api.get('/cursos/mis_cursos/');
+    return response;
+  },
   asignarMaestro: (id: number, asignacionData: any): Promise<AxiosResponse> => 
     api.post(`/cursos/${id}/asignar_maestro/`, asignacionData),
 };

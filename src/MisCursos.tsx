@@ -161,6 +161,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
   const [cuotaInput, setCuotaInput] = useState('');
   const [cuotaError, setCuotaError] = useState('');
 
+  // Determine if user is directivo
+  const isDirectivo = user.es_directivo;
+
   // Funciones utilitarias memoizadas
   const timeOptions = useMemo(() => {
     const options = [];
@@ -236,32 +239,47 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
     }
   }, [validateCuota]);
 
-  // Cargar datos
+  // FUNCIÓN CORREGIDA: Cargar datos según el tipo de usuario
   const loadCursos = useCallback(async () => {
-    const response = await cursoAPI.getAll();
+    // Si es directivo, cargar todos los cursos, si es maestro, solo sus cursos
+    const response = isDirectivo ? await cursoAPI.getAll() : await cursoAPI.misCursos();
     setCursos(response.data);
     return response.data;
-  }, []);
+  }, [isDirectivo]);
 
+  // FUNCIÓN CORREGIDA: Cargar datos iniciales según permisos
   const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
       
-      const ciclosResponse = await cicloLectivoAPI.getAll();
-      setCiclosLectivos(ciclosResponse.data);
-      
-      if (ciclosResponse.data.length === 0) return;
-      
-      const [, maestrosResponse] = await Promise.all([loadCursos(), userAPI.getAll()]);
-      setMaestros(maestrosResponse.data.filter((u: any) => u.es_maestro || (u.es_maestro && u.es_directivo)));
+      // Si es directivo, necesita todos los datos para el formulario
+      if (isDirectivo) {
+        const ciclosResponse = await cicloLectivoAPI.getAll();
+        setCiclosLectivos(ciclosResponse.data);
+        
+        if (ciclosResponse.data.length === 0) {
+          await loadCursos(); // Cargar cursos aunque no haya ciclos
+          return;
+        }
+        
+        const [, maestrosResponse] = await Promise.all([
+          loadCursos(), 
+          userAPI.getAll()
+        ]);
+        setMaestros(maestrosResponse.data.filter((u: any) => u.es_maestro || (u.es_maestro && u.es_directivo)));
+      } else {
+        // Si es solo maestro, solo cargar sus cursos
+        await loadCursos();
+      }
       
     } catch (err: any) {
+      console.error('Error loading initial data:', err);
       showMessage(handleAPIError(err).message, 'error');
     } finally {
       setLoading(false);
     }
-  }, [loadCursos, showMessage]);
+  }, [loadCursos, showMessage, isDirectivo]);
 
   useEffect(() => { loadInitialData(); }, [loadInitialData]);
 
@@ -406,9 +424,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
     }));
   }, []);
 
-  // Componente de formulario
+  // Componente de formulario - SOLO PARA DIRECTIVOS
   const FormModal = useMemo(() => {
-    if (!showModal) return null;
+    if (!showModal || !isDirectivo) return null;
     
     return (
       <div className="modal-overlay">
@@ -540,11 +558,11 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
         </div>
       </div>
     );
-  }, [showModal, editingCurso, submitting, error, formData, ciclosLectivos, cuotaInput, cuotaError, timeOptions, handleInputChange, handleCuotaChange, handleSubmit]);
+  }, [showModal, isDirectivo, editingCurso, submitting, error, formData, ciclosLectivos, cuotaInput, cuotaError, timeOptions, handleInputChange, handleCuotaChange, handleSubmit]);
 
-  // Componente del modal de maestras
+  // Componente del modal de maestras - SOLO PARA DIRECTIVOS
   const MaestrasModal = useMemo(() => {
-    if (!showMaestrasModal || !cursoParaMaestras) return null;
+    if (!showMaestrasModal || !cursoParaMaestras || !isDirectivo) return null;
     
     return (
       <div className="modal-overlay">
@@ -590,9 +608,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
         </div>
       </div>
     );
-  }, [showMaestrasModal, cursoParaMaestras, maestros, maestrasAsignadas, submitting, saveMaestrasAssignment]);
-
-  const isDirectivo = user.es_directivo;
+  }, [showMaestrasModal, cursoParaMaestras, isDirectivo, maestros, maestrasAsignadas, submitting, saveMaestrasAssignment]);
 
   if (loading) {
     return (
@@ -610,7 +626,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ user, onNavigateBack }) => {
           <ArrowLeft className="h-4 w-4" />
           Volver
         </button>
-        <h1 className="page-title">Gestión de Cursos</h1>
+        <h1 className="page-title">
+          {isDirectivo ? 'Gestión de Cursos' : 'Mis Cursos Asignados'}
+        </h1>
         {isDirectivo && (
           <button onClick={openCreateModal} className="btn-primary">
             <Plus className="h-4 w-4" />

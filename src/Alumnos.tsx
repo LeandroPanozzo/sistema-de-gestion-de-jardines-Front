@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   User, Plus, Edit3, Trash2, Save, X, UserPlus, School, Phone, Calendar, 
-  Users, AlertCircle, BookOpen, ChevronDown, ChevronRight, Search
+  Users, AlertCircle, BookOpen, ChevronDown, ChevronRight, Search, FileText // Agregar aquí
 } from 'lucide-react';
 import { alumnoAPI, familiarAPI, cursoAPI, handleAPIError } from './config/api';
 import './MisAlumnos.css';
@@ -58,6 +58,7 @@ interface CursoConAlumnos extends Curso {
 interface MisAlumnosProps {
   user: UserData;
   onBack: () => void;
+  onNavigateToObservaciones: () => void; // Nueva prop
 }
 
 const RELACIONES_FAMILIARES = [
@@ -133,7 +134,7 @@ useEffect(() => {
       {children}
     </div>
   );
-const MisAlumnos: React.FC<MisAlumnosProps> = ({ user, onBack }) => {
+const Alumnos: React.FC<MisAlumnosProps> = ({ user, onBack, onNavigateToObservaciones}) => {
   const [alumnos, setAlumnos] = useState<Alumno[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [cursosConAlumnos, setCursosConAlumnos] = useState<CursoConAlumnos[]>([]);
@@ -156,8 +157,8 @@ const MisAlumnos: React.FC<MisAlumnosProps> = ({ user, onBack }) => {
   });
 
   useEffect(() => {
-    if (!user.es_maestro) {
-      setError('No tienes permisos para acceder a esta sección');
+    if (!user.es_maestro && !user.es_directivo) {
+        setError('No tienes permisos para acceder a esta sección');
       return;
     }
     loadData();
@@ -227,11 +228,15 @@ const MisAlumnos: React.FC<MisAlumnosProps> = ({ user, onBack }) => {
     setError(null);
     
     const [alumnosResponse, cursosResponse] = await Promise.all([
-      alumnoAPI.misAlumnos(),
-      cursoAPI.misCursos()
+      // Si es solo directivo, obtener todos los alumnos, si es maestro sus alumnos
+      user.es_directivo && !user.es_maestro 
+        ? alumnoAPI.getAll()
+        : alumnoAPI.misAlumnos(),
+      user.es_directivo && !user.es_maestro
+        ? cursoAPI.getAll()
+        : cursoAPI.misCursos()
     ]);
     
-    // Los alumnos ya vienen con sus familiares desde el backend
     setAlumnos(alumnosResponse.data);
     setCursos(cursosResponse.data);
     
@@ -497,8 +502,8 @@ const closeFamiliarModal = () => {
     </div>
   ));
 
-  if (!user.es_maestro) {
-    return (
+if (!user.es_maestro && !user.es_directivo) {
+      return (
       <div className="mis-alumnos-container">
         <div className="error-message">
           <AlertCircle />
@@ -524,8 +529,20 @@ const closeFamiliarModal = () => {
     <div className="mis-alumnos-container">
       <div className="header">
         <button onClick={onBack} className="btn-back"><X />Volver</button>
-        <h1><BookOpen />Mis Alumnos</h1>
-        <button onClick={openCreateModal} className="btn-primary"><Plus />Agregar Alumno</button>
+        <h1><BookOpen />{user.es_directivo && !user.es_maestro ? 'Todos los Alumnos' : 'Mis Alumnos'}</h1>
+        <div className="header-actions">
+          <button 
+            onClick={onNavigateToObservaciones} 
+            className="btn-secondary"
+            title="Ir a observaciones"
+          >
+            <FileText />
+            Observaciones
+          </button>
+          <button onClick={openCreateModal} className="btn-primary">
+            <Plus />Agregar Alumno
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -538,8 +555,13 @@ const closeFamiliarModal = () => {
       {cursos.length === 0 && (
         <div className="no-courses-message">
           <School />
-          <h3>No tienes cursos asignados</h3>
-          <p>Para poder gestionar alumnos, primero debes tener cursos asignados. Contacta al directivo para que te asigne cursos.</p>
+          <h3>No tienes cursos {user.es_directivo && !user.es_maestro ? 'registrados' : 'asignados'}</h3>
+          <p>
+            {user.es_directivo && !user.es_maestro 
+              ? 'No hay cursos registrados en el sistema.' 
+              : 'Para poder gestionar alumnos, primero debes tener cursos asignados. Contacta al directivo para que te asigne cursos.'
+            }
+          </p>
         </div>
       )}
 
@@ -941,4 +963,4 @@ const closeFamiliarModal = () => {
   );
 };
 
-export default MisAlumnos;
+export default Alumnos;

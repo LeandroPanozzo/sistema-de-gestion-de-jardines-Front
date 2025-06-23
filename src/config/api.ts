@@ -188,7 +188,16 @@ export const alumnoAPI = {
   getAll: (): Promise<AxiosResponse> => api.get('/alumnos/'),
   getById: (id: number): Promise<AxiosResponse> => api.get(`/alumnos/${id}/`),
   create: (alumnoData: any): Promise<AxiosResponse> => api.post('/alumnos/', alumnoData),
-  update: (id: number, alumnoData: any): Promise<AxiosResponse> => api.patch(`/alumnos/${id}/`, alumnoData),
+  // Fixed: Use PUT instead of PATCH for full updates, or ensure PATCH works properly
+  update: (id: number, alumnoData: any): Promise<AxiosResponse> => {
+    console.log('Updating alumno:', id, alumnoData); // Debug log
+    return api.patch(`/alumnos/${id}/`, alumnoData);
+  },
+  // Alternative: Add a specific method for updating observations
+  updateObservations: (id: number, observaciones: string): Promise<AxiosResponse> => {
+    console.log('Updating observations for alumno:', id, observaciones); // Debug log
+    return api.patch(`/alumnos/${id}/`, { observaciones });
+  },
   delete: (id: number): Promise<AxiosResponse> => api.delete(`/alumnos/${id}/`),
   misAlumnos: (): Promise<AxiosResponse> => api.get('/alumnos/mis_alumnos/'),
 };

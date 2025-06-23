@@ -4,7 +4,8 @@ import Register from './Register';
 import Login from './login';
 import Bienvenida from './Bienvenida';
 import Home from './home';
-import MisAlumnos from './MisAlumnos';
+import Alumnos from './Alumnos';
+import AlumnosObservaciones from './AlumnosObservaciones'; // Add this import
 import CiclosLectivos from './CiclosLectivos';
 import Header from './header';
 import Footer from './footer';
@@ -17,7 +18,7 @@ import PagosComponent from './Pagos';
 import EstadisticasPagos from './EstadisticasPagos';
 import Estadisticas from './estadisticas';
 import Chatbot from './chatbotIA';
-import HistorialAsistencias from './historialAsistencias'; // Make sure the file name matches exactly
+import HistorialAsistencias from './historialAsistencias';
 import { getAuthToken, clearAuthToken, authAPI, UserData } from './config/api';
 
 // Componente para hacer scroll al inicio en cada cambio de ruta
@@ -46,8 +47,14 @@ function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+
   const handleLogoClick = () => {
     navigate('/home');
+  };
+
+  // Add the missing function
+  const handleNavigateToObservaciones = () => {
+    navigate('/alumnos-observaciones');
   };
   
   // Verificar si hay una sesión activa al cargar la aplicación
@@ -190,12 +197,26 @@ function AppContent() {
           
           {/* Ruta de mis alumnos protegida */}
           <Route 
-            path="/mis-alumnos" 
+            path="/alumnos" 
             element={
               <ProtectedRoute user={user}>
-                <MisAlumnos 
+                <Alumnos 
                   user={user!} 
                   onBack={() => navigate('/home')}
+                  onNavigateToObservaciones={handleNavigateToObservaciones}
+                />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Nueva ruta para observaciones de alumnos */}
+          <Route 
+            path="/alumnos-observaciones" 
+            element={
+              <ProtectedRoute user={user}>
+                <AlumnosObservaciones 
+                  user={user!} 
+                  onBack={() => navigate('/alumnos')}
                 />
               </ProtectedRoute>
             } 

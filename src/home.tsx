@@ -49,7 +49,7 @@ const Home: React.FC<HomeProps> = ({ user }) => {
           icon: GraduationCap, 
           label: "Mis Alumnos", 
           description: "Ver alumnos de mis cursos",
-          action: () => navigate('/mis-alumnos')
+          action: () => navigate('/alumnos')
         },
         { 
           icon: BookOpen, 

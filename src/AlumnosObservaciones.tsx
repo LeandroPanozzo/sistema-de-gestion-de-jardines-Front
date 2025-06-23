@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   User, Edit3, Save, X, FileText, Search, AlertCircle, 
-  BookOpen, Calendar, Users, ChevronDown, ChevronRight, School, Download, FileDown
+  Users, ChevronDown, ChevronRight, School, Download, FileDown
 } from 'lucide-react';
 import { alumnoAPI, handleAPIError } from './config/api';
 import './AlumnosObservaciones.css'
